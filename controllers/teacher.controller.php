@@ -35,11 +35,7 @@ class TeacherController extends BASECONTROLLER{
         }
 
         $this->userModel = $uModel;
-        $this->TModel = $teachModel; 
-        // print_r($uModel);
-        // echo "<hr>";
-        // print_r($empModel);
-        // exit;
+        $this->TModel = $teachModel;  
     }
 
     public function  checkExistUsername(){
@@ -92,7 +88,7 @@ class TeacherController extends BASECONTROLLER{
             $stmt2 = $this->prepare($sql2);
             $stmt2->bind_param('ssssssssss',$teachModel->profile,$teachModel->firstname,$teachModel->lastname,$teachModel->gender,$teachModel->villageid,$teachModel->dob,$teachModel->tel,$teachModel->img,$teachModel->email,$this->userId);
             if($stmt2->execute()){ 
-                PrintJSON([],'Create Teacher Success Full','1');
+                PrintJSON([],"Create Teacher Firstname: $teachModel->firstname  Success Full",1);
                 $this->closeall($stmt2);
             }else{
                 print_r($stmt2->error);
@@ -135,7 +131,7 @@ class TeacherController extends BASECONTROLLER{
             $stmt2->bind_param('sssssssssss', $teachModel->firstname,$teachModel->lastname,$teachModel->gender,$teachModel->villageid,$teachModel->dob,$teachModel->tel,$teachModel->email,$teachModel->userid,$teachModel->profile,$teachModel->img,$teachModel->id);
             
             if($stmt2->execute()){
-                PrintJSON([],"Update teacher Id: $teachModel->id Success Full",1);
+                PrintJSON([],"Update Teacher Firstname: $teachModel->firstname Success Full",1);
             }
 
         }catch(Exception $e){

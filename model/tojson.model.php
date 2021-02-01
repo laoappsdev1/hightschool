@@ -15,11 +15,17 @@ class Tojson{
             PrintJSON(array(),"data is empty",0);
             die();
         }
-        foreach ($object as $property => $value) {
-            if (property_exists(get_class($this), $property)) {
-                $this->$property = $value;
-            }
-        } 
+        try {
+            foreach ($object as $property => $value) {
+                if (property_exists(get_class($this), $property)) { 
+                    $this->$property = $value;
+                }
+            } 
+        } catch (TypeError  $e) { 
+            PrintJSON([],$e->getMessage()." Line ". $e->getLine(),0);
+            die();
+        }
+      
     }
 
     function validateDate($date, $format = 'Y-m-d')
