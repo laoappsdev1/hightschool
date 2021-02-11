@@ -66,23 +66,17 @@ class ParentController extends BASECONTROLLER{
 
             // create user
             parent::__construct();
-            $uModel = $this->userModel;
-            $sql="insert into user(username,password,token,status,created_date,updated_date) values(?,?,?,?,?,?)";
+            $model = $this->userModel;
+            $model->password=$this->getPasswordHash($model->password); 
+            $sql="insert into user(username,password,token,usertype,created_date,updated_date) values(?,?,?,?,?,?)";
             $stmt = $this->prepare($sql);
-            $stmt->bind_param('ssssss',$uModel->username,$uModel->password,$uModel->token,$uModel->status,$uModel->createdate,$uModel->updatedate);
+            $stmt->bind_param('ssssss',$model->username,$model->password,$model->token,$model->usertype,$model->createdate,$model->updatedate);
             $stmt->execute();
             $this->userId=$stmt->insert_id;  
             $this->closeall($stmt);
 
             //create parent
-            parent::__construct(); 
-
-            // if(!empty($this->PModel->img))
-            // {
-            //     $img_name="Timage_".time().rand(100,999).".".getbase64_name($this->PModel->img);  
-            //     base64_to_jpeg($this->PModel->img, dir_images.$img_name);    
-            //     $this->PModel->img=$img_name;
-            // } 
+            parent::__construct();  
 
             $prModel = $this->PModel;  
             $sql2="insert into parent(description,firstname,lastname,gender,village_id,job,tel,email,user_id) values(?,?,?,?,?,?,?,?,?)";
@@ -98,6 +92,28 @@ class ParentController extends BASECONTROLLER{
             print_r($e->getMessage());
         }
     }
+
+    function getOldpassword(){
+        parent::__construct();
+        $model=$this->userModel;
+        $sql="select password from user";
+        $stmt=$this->prepare($sql);
+        $stmt->execute();
+        $result=$stmt->get_result();
+    foreach($result as $k=>$v){
+        $pass=$v['password'];
+    }
+        return $pass;
+    }
+    function getPasswordUpdateUser(){
+        $model=$this->userModel;
+        if(strlen($model->password)>55){  
+            $model->password=$this->getOldpassword();  
+        }else{
+            $model->password=$this->getPasswordHash($model->password); 
+        } 
+    }
+
     public function updateParent(){ 
         try{ 
             $this->CheckParentId();
@@ -106,26 +122,18 @@ class ParentController extends BASECONTROLLER{
 
             // //update user 
             parent::__construct();
-            $uModel=$this->userModel;
-            $sql="update user set username=?, password=?, token=?, status=?, created_date=?, updated_date=? where id=?";
+            $model=$this->userModel;
+            $this->getPasswordUpdateUser();
+             
+            $sql="update user set username=?, password=?, token=?, usertype=?, created_date=?, updated_date=? where id=?";
             $stmt=$this->prepare($sql);
-            $stmt->bind_param('sssssss', $uModel->username,$uModel->password,$uModel->token,$uModel->status,$createD,$uModel->updatedate,$this->PModel->userid);
+            $stmt->bind_param('sssssss', $model->username,$model->password,$model->token,$model->usertype,$createD,$model->updatedate,$this->PModel->userid);
             $stmt->execute();
             $this->closeall($stmt);
             
             //update Parent
             parent::__construct();
-
-            // if(!empty($this->PModel->img))
-            // { 
-            //     $this->DeleteOldFile(); 
-            //     $Img_name="Timage_".time().rand(100,999).".".getbase64_name($this->PModel->img); 
-            //     base64_to_jpeg($this->PModel->img, dir_images.$Img_name);   
-            //     $this->PModel->img=$Img_name;
-            // }else{
-            //     $this->PModel->img=$this->getOldFile(); 
-            // }
-
+ 
             $prModel=$this->PModel;
             $sql2="update parent set firstname=?, lastname=?, gender=?,village_id=?, description=?, tel=?, email=?, user_id=? , job=?  where id=?";
             $stmt2=$this->prepare($sql2);
@@ -174,24 +182,51 @@ class ParentController extends BASECONTROLLER{
     public function viewParent(){
         try{ 
             $this->CheckParentId();
-            $prModel=$this->PModel;
+            $model=$this->PModel;
             parent::__construct();
             $stmt = $this->prepare("select * from user as u join parent as p on p.user_id=u.id  where p.id=?");  
-            $stmt->bind_param('s', $prModel->id);
+            $stmt->bind_param('s', $model->id);
             $stmt->execute();  
             $rs = $stmt->get_result(); 
-            $prArray = array();
+            $arr = array();
             if(!empty($rs->num_rows)){
                     foreach($rs as $k=>$v)
                     {
-                        $prArray[] = $v;
+                        $arr= $v;
                     }
-                    $jsonObj='"Data":{'.json_encode($prArray, true).',"Message":"Select Data Success Full","status":1}';
-                    echo json_encode($jsonObj);
+                    $data=json_encode($arr);
+                    $json = "{\"Data\":$data, \"Message\": \"View Parent ID: $model->id Success Full\", \"Status\":\"1\"}";
+                    echo $json; 
                     $this->closeall($stmt);
                     die;
                 }else{
-                    PrintJSON([],"User Id: $prModel->id Can't valiable", 0);
+                    PrintJSON([],"User Id: $model->id Can't valiable", 0);
+                }
+        }catch(Exception $e){
+            print_r($e->getMessage());
+        }
+    }
+
+    public function viewAllParent(){
+        try{  
+            $model=$this->PModel;
+            parent::__construct();
+            $stmt = $this->prepare("select * from user as u join parent as p on p.user_id=u.id");   
+            $stmt->execute();  
+            $rs = $stmt->get_result(); 
+            $arr = array();
+            if(!empty($rs->num_rows)){
+                    foreach($rs as $k=>$v)
+                    {
+                        $arr[]= $v;
+                    }
+                    $data=json_encode($arr);
+                    $json = "{\"Data\":$data, \"Message\": \"View All Parent Success Full\", \"Status\":\"1\"}";
+                    echo $json; 
+                    $this->closeall($stmt);
+                    die;
+                }else{
+                    PrintJSON([],"Parent Can't valiable", 0);
                 }
         }catch(Exception $e){
             print_r($e->getMessage());
@@ -224,7 +259,7 @@ class ParentController extends BASECONTROLLER{
         $stmt->bind_param('s', $prModel->userid);
         $stmt->execute();   
         $rs = $stmt->get_result(); // get the mysqli result
-        $createD=[];
+        $createD=0;
         foreach($rs as $k=>$v){
             $createD=$v['created_date']; 
         }

@@ -48,14 +48,15 @@ class UserController extends BASECONTROLLER{
             $this->checkExistUsername();
             parent::__construct();
 
-            $uModel = $this->userModel;
-            $sql="insert into user(username,password,token,status,created_date,updated_date) values(?,?,?,?,?,?)";
+            $model = $this->userModel;
+            $model->password=$this->getPasswordHash($model->password);
+            $sql="insert into user(username,password,token,usertype,created_date,updated_date) values(?,?,?,?,?,?)";
             $stmt = $this->prepare($sql);
-            $stmt->bind_param('ssssss',$uModel->username,$uModel->password,$uModel->token,$uModel->status,$uModel->createdate,$uModel->updatedate);
+            $stmt->bind_param('ssssss',$model->username,$model->password,$model->token,$model->usertype,$model->createdate,$model->updatedate);
             $rs=$stmt->execute();
             if($rs){
                 // $id = isset($uModel->id)?$uModel->id: '';
-                echo json_encode(array("user id","message"=>"Create User Success","status"=>"1"));
+                echo json_encode(array("message"=>"Create User ID: $model->id Success","status"=>"1"));
             }
             
             // $a = array('user'=>$uModel);
@@ -69,44 +70,95 @@ class UserController extends BASECONTROLLER{
         }
         
     }
+
+
+    function getOldpassword(){
+        parent::__construct();
+        $model=$this->userModel;
+        $sql="select password from user";
+        $stmt=$this->prepare($sql);
+        $stmt->execute();
+        $result=$stmt->get_result();
+    foreach($result as $k=>$v){
+        $pass=$v['password'];
+    }
+        return $pass;
+    }
+    function getPasswordUpdateUser(){
+        $model=$this->userModel;
+        if(strlen($model->password)>55){  
+            $model->password=$this->getOldpassword();  
+        }else{
+            $model->password=$this->getPasswordHash($model->password); 
+        } 
+    }
+
     public function UpdateUser(){ 
         try{ 
             $this->CheckId(); 
             $createD=$this->getOldDate(); 
-            $uModel=$this->userModel;
-            $sql="update user set username=?, password=?, token=?, status=?, created_date=?, updated_date=? where id=?";
+            $model=$this->userModel;
+            $this->getPasswordUpdateUser();
+            $sql="update user set username=?, password=?, token=?, usertype=?, created_date=?, updated_date=? where id=?";
             $stmt=$this->prepare($sql);
-            $stmt->bind_param('sssssss', $uModel->username,$uModel->password,$uModel->token,$uModel->status,$createD,$uModel->updatedate,$uModel->id);
+            $stmt->bind_param('sssssss', $model->username,$model->password,$model->token,$model->usertype,$createD,$model->updatedate,$model->id);
             $data=$stmt->execute();
             if($data){
-                PrintJSON([],"Update User Id: $uModel->id Success Full",0);
+                PrintJSON([],"Update User Id: $model->id Success Full",0);
             }
         }catch(Exception $e){
             print_r($e->getMessage());
         }
     }
 
-    public function Views(){
+    public function ViewUser(){
         try{ 
             $this->CheckId();
-            $uModel=$this->userModel;
+            $model=$this->userModel;
             parent::__construct();
             $stmt = $this->prepare("select * from user where id=?");  
-            $stmt->bind_param('s', $uModel->id);
+            $stmt->bind_param('s', $model->id);
             $stmt->execute();  
             $rs = $stmt->get_result(); 
-            $emparray = array();
+            $arr = array();
             if(!empty($rs->num_rows)){
-                foreach($rs as $k=>$v)
-                {
-                    $emparray[] = $v;
-                }
-                    $jsonobj='{"Data":'.json_encode($emparray).',"Message":"Select Data Success Full","status":1}';
-                    echo json_encode($jsonobj);
-                    $this->closeall($stmt);
-                    die;
+                    foreach($rs as $k=>$v)
+                        {
+                            $arr= $v;
+                        }
+                        $data=json_encode($arr);
+                        $json = "{\"Data\":$data, \"Message\": \"View User ID: $model->id Success Full\", \"Status\":\"1\"}";
+                        echo $json; 
+                        $this->closeall($stmt);
+                        die;
                 }else{
-                    PrintJSON([],"User Id: $uModel->id Can't valiable", 0);
+                    PrintJSON([],"User Id: $model->id Can't valiable", 0);
+                }
+        }catch(Exception $e){
+            print_r($e->getMessage());
+        }
+    }
+
+    public function ViewAllUser(){
+        try{  
+            $model=$this->userModel;
+            parent::__construct();
+            $stmt = $this->prepare("select * from user");   
+            $stmt->execute();  
+            $rs = $stmt->get_result(); 
+            $arr = array();
+            if(!empty($rs->num_rows)){
+                    foreach($rs as $k=>$v)
+                        {
+                            $arr[]= $v;
+                        }
+                        $data=json_encode($arr);
+                        $json = "{\"Data\":$data, \"Message\": \"View All User Success Full\", \"Status\":\"1\"}";
+                        echo $json; 
+                        $this->closeall($stmt);
+                        die;
+                }else{
+                    PrintJSON([],"User Can't valiable", 0);
                 }
         }catch(Exception $e){
             print_r($e->getMessage());
@@ -157,10 +209,7 @@ class UserController extends BASECONTROLLER{
         $this->closeall($stmt); 
     }
     
-    public function ViewUser($object){
-        // $usermodel = new UserModel();
-        // $usermodel->parseObject($object);
-    }
+     
     public function DeleteUser($object){
         // $usermodel = new UserModel();
         // $usermodel->parseObject($object);

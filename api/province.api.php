@@ -17,6 +17,9 @@ try{
     }else if($m==="view"){  
         $LVC=new ProvinceController($json); 
         $LVC->viewProvince();    
+    }else if($m==="viewall"){  
+        $LVC=new ProvinceController($json); 
+        $LVC->viewAllProvince();    
     }else{
         echo "Data m Is not Valiable!";
     }

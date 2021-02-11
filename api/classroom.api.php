@@ -5,7 +5,7 @@ try{
     $m=isset($_SESSION['m'])?$_SESSION['m']:'';
     $json = json_decode(file_get_contents('php://input'), true);  
     if($m==="create"){
-        CheckAuthorize(['teacher']);
+        CheckAuthorize([UserRoles::teacher]);
         $LVC=new ClassRoomController($json); 
         $LVC->createClassroom();    
     }else if($m==="update"){  
@@ -17,6 +17,9 @@ try{
     }else if($m==="view"){  
         $LVC=new ClassRoomController($json); 
         $LVC->viewClassroom();    
+    }else if($m==="viewall"){  
+        $LVC=new ClassRoomController($json); 
+        $LVC->viewAllClassroom();    
     }else{
         echo "Data m Is not Valiable!";
     }

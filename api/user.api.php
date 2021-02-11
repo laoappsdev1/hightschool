@@ -17,7 +17,11 @@
         }else if($m==='view'){ 
             CheckAuthorize(['teacher']);
             $uc=new UserController($json);
-            $uc->Views();
+            $uc->ViewUser();
+        }else if($m==='viewall'){ 
+            CheckAuthorize(['teacher']);
+            $uc=new UserController($json);
+            $uc->ViewAllUser();
         }else if($m==='delete'){ 
             CheckAuthorize(['teacher']);
             $uc=new UserController($json);

@@ -17,6 +17,9 @@ try{
     }else if($m==="view"){ 
         $tC=new TeacherController($json); 
         $tC->viewTeacher(); 
+    }else if($m==="viewall"){ 
+        $tC=new TeacherController($json); 
+        $tC->viewAllTeacher(); 
     }else{
         echo "Data m Is not Valiable!";
     }

@@ -17,6 +17,9 @@ try{
     }else if($m==="view"){  
         $dtc=new DistrictController($json); 
         $dtc->viewDistrict();    
+    }else if($m==="viewall"){  
+        $dtc=new DistrictController($json); 
+        $dtc->viewAllDistrict();    
     }else{
         echo "Data m Is not Valiable!";
     }

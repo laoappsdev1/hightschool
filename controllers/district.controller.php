@@ -22,15 +22,13 @@ class DistrictController extends BASECONTROLLER{
         try{ 
             $this->checkExitprovinceId();
             $this->checkExitdistrictname();
-            $Dtmodel=$this->DistrictM;
-            // print_r($Dtmodel);exit;
+            $model=$this->DistrictM; 
             parent::__construct();
             $sql="insert into district(name, province_id,created_date,updated_date) values(?,?,?,?)";
             $stmt = $this->prepare($sql);
-            $stmt->bind_param('ssss',$Dtmodel->name,$Dtmodel->provinceid,$Dtmodel->createdate,$Dtmodel->updatedate);
-            if($stmt->execute()){
-                $name=$this->DistrictM->name;
-                PrintJSON([],"Create district Name: $name Success Fully!",1);
+            $stmt->bind_param('ssss',$model->name,$model->provinceid,$model->createdate,$model->updatedate);
+            if($stmt->execute()){ 
+                PrintJSON([],"Create district Name: $model->name Success Fully!",1);
                 $this->closeall($stmt);
             }
         }catch(Exception $e){
@@ -46,16 +44,14 @@ class DistrictController extends BASECONTROLLER{
             $this->checkExitDistrictId();
 
             parent::__construct();
-            $SModel=$this->DistrictM;
-            // print_r($SModel);exit;
+            $model=$this->DistrictM; 
             $createD=$this->getDateCreate(); 
 
             $sql="update district set name=?, province_id=?, created_date=?, updated_date=? where id=?";
             $stmt = $this->prepare($sql);
-            $stmt->bind_param("sssss", $this->DistrictM->name,$this->DistrictM->provinceid,$createD,$this->DistrictM->updatedate,$this->DistrictM->id);
-                if( $stmt->execute()){
-                    $name=$this->DistrictM->name;
-                    PrintJSON([],"update District Name: $name Success Fully!",1);
+            $stmt->bind_param("sssss", $model->name,$model->provinceid,$createD,$model->updatedate,$model->id);
+                if( $stmt->execute()){ 
+                    PrintJSON([],"update District Name: $model->name Success Fully!",1);
                     $this->closeall($stmt);
                 }
         }catch(Exception $e){
@@ -67,24 +63,79 @@ class DistrictController extends BASECONTROLLER{
     public function viewDistrict(){
         try{    
             $this->checkExitDistrictId();
-            $SModel=$this->DistrictM;
+            $model=$this->DistrictM;
             parent::__construct();
-            $stmt = $this->prepare("select * from district where id=?");  
-            $stmt->bind_param('s', $SModel->id);
+            $stmt = $this->prepare("
+                select 
+                p.id province_id, 
+                p.name province, 
+                d.id district_id, 
+                d.name district 
+                from district as d join province as p 
+                on d.province_id=p.id
+                where d.id=?"
+            );  
+            $stmt->bind_param('s', $model->id);
             $stmt->execute();  
             $rs = $stmt->get_result(); 
-            $districtArray = array();
+            $arr = array();
             if(!empty($rs->num_rows)){
                     foreach($rs as $k=>$v)
                     {
-                        $districtArray[] = $v;
+                        $arr= $v;
                     }
-                    $jsonObj='"Data":{'.json_encode($districtArray, true).',"Message":"Select Data Success Full","status":1}';
-                    echo json_encode($jsonObj);
+                    $data=json_encode($arr);
+                    $json = "{\"Data\":$data, \"Message\": \"View District ID: $model->id Success Full\", \"Status\":\"1\"}";
+                    echo $json; 
                     $this->closeall($stmt);
                     die;
                 }else{
-                    PrintJSON([],"district Id: $SModel->id Can't valiable", 0);
+                    PrintJSON([],"district Id: $model->id Can't valiable", 0);
+                }
+        }catch(Exception $e){
+            print_r($e->getMessage());
+        }
+    }
+
+    public function viewAllDistrict(){
+        try{     
+            $model=$this->DistrictM;
+            parent::__construct();
+            $keywords='';
+            $search=trim($model->keyword);
+                if(!empty(strlen($search))){  //trim() ແມ່ນ function ຕັດ space ທັງຫນ້າ ທັງຫຼັງ
+                    $keywords.="and 
+                    (
+                        d.name like '%".$search."%'
+                        or p.name like '%".$search."%'
+                    )";
+                }
+            $stmt = $this->prepare("
+            select 
+                p.id province_id, 
+                p.name province, 
+                d.id district_id, 
+                d.name district 
+                from district as d join province as p 
+                on d.province_id=p.id
+                where d.id>0
+                $keywords
+            ");   
+            $stmt->execute();  
+            $rs = $stmt->get_result(); 
+            $arr = array();
+            if(!empty($rs->num_rows)){
+                    foreach($rs as $k=>$v)
+                    {
+                        $arr[]= $v;
+                    }
+                    $data=json_encode($arr);
+                    $json = "{\"Data\":$data, \"Message\": \"View All District Success Full\", \"Status\":\"1\"}";
+                    echo $json; 
+                    $this->closeall($stmt);
+                    die;
+                }else{
+                    PrintJSON([],"district Can't valiable", 0);
                 }
         }catch(Exception $e){
             print_r($e->getMessage());
@@ -94,13 +145,13 @@ class DistrictController extends BASECONTROLLER{
     public function deleteDistrict(){
         try{
             $this->checkExitDistrictId();
-            $SModel=$this->DistrictM;
+            $model=$this->DistrictM;
             parent::__construct();
             $sql="delete from district where id=?";
             $stmt=$this->prepare($sql);
-            $stmt->bind_param('s', $SModel->id);
+            $stmt->bind_param('s', $model->id);
             if($stmt->execute()){
-                PrintJSON([],"Delete district ID: $SModel->id Success Full!",1);
+                PrintJSON([],"Delete district ID: $model->id Success Full!",1);
             }
             $this->closeall($stmt);
         }catch(Exception $e){
@@ -135,13 +186,14 @@ class DistrictController extends BASECONTROLLER{
 
     function checkExitdistrictname(){
         parent::__construct(); 
-        $sql="select name from district where name='".$this->DistrictM->name."' and province_id='".$this->DistrictM->provinceid."'";
+        $model=$this->DistrictM;
+        $sql="select name from district where name='".$model->name."' and province_id='".$model->provinceid."'";
         $stmt=$this->prepare($sql);
         $stmt->execute();
         $rs = $stmt->get_result(); // get the mysqli result
             if(!empty($rs->num_rows)){
-                $name=$this->DistrictM->name;
-                $provinceid=$this->DistrictM->provinceid;
+                $name=$model->name;
+                $provinceid=$model->provinceid;
                 PrintJSON([],"your district Name: $name already to create before In province ID: $provinceid ", 0);
                 die();
         }   
@@ -154,7 +206,7 @@ class DistrictController extends BASECONTROLLER{
         $stmt->bind_param('s', $this->DistrictM->id);
         $stmt->execute();   
         $rs = $stmt->get_result(); // get the mysqli result
-        $createD=[];
+        $createD=0;
         foreach($rs as $k=>$v){
             $createD=$v['created_date']; 
         }

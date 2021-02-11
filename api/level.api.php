@@ -17,6 +17,9 @@ try{
     }else if($m==="view"){  
         $LVC=new LevelController($json); 
         $LVC->viewLevel();    
+    }else if($m==="viewall"){  
+        $LVC=new LevelController($json); 
+        $LVC->viewAllLevel();    
     }else{
         echo "Data m Is not Valiable!";
     }

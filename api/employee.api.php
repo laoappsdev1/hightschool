@@ -22,6 +22,10 @@ try{
         CheckAuthorize(['teacher']);
         $emC=new EmployeeController($json); 
         $emC->viewEmployee();  
+    }else if($m==="viewall"){ 
+        CheckAuthorize(['teacher']);
+        $emC=new EmployeeController($json); 
+        $emC->viewAllEmployee();  
     }else{
         echo "Data m Valiable!";
     }

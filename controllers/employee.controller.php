@@ -71,10 +71,12 @@ class EmployeeController extends BASECONTROLLER{
             parent::__construct();
 
             // create user
-            $uModel = $this->userModel;
-            $sql="insert into user(username,password,token,status,created_date,updated_date) values(?,?,?,?,?,?)";
+            $model = $this->userModel;
+            $model->password=$this->getPasswordHash($model->password); 
+
+            $sql="insert into user(username,password,token,usertype,created_date,updated_date) values(?,?,?,?,?,?)";
             $stmt = $this->prepare($sql);
-            $stmt->bind_param('ssssss',$uModel->username,$uModel->password,$uModel->token,$uModel->status,$uModel->createdate,$uModel->updatedate);
+            $stmt->bind_param('ssssss',$model->username,$model->password,$model->token,$model->usertype,$model->createdate,$model->updatedate);
             $stmt->execute();
             $this->userId=$stmt->insert_id;  
             $stmt->close();
@@ -95,6 +97,28 @@ class EmployeeController extends BASECONTROLLER{
         }
         
     }
+
+    function getOldpassword(){
+        parent::__construct();
+        $model=$this->userModel;
+        $sql="select password from user";
+        $stmt=$this->prepare($sql);
+        $stmt->execute();
+        $result=$stmt->get_result();
+    foreach($result as $k=>$v){
+        $pass=$v['password'];
+    }
+        return $pass;
+    }
+    function getPasswordUpdateUser(){
+        $model=$this->userModel;
+        if(strlen($model->password)>55){  
+            $model->password=$this->getOldpassword();  
+        }else{
+            $model->password=$this->getPasswordHash($model->password); 
+        } 
+    }
+
     public function updateEmployee(){ 
         try{ 
             $this->CheckemployeeId();
@@ -103,10 +127,12 @@ class EmployeeController extends BASECONTROLLER{
                                  
             //update user  
             parent::__construct();
-            $uModel=$this->userModel;
-            $sql="update user set username=?, password=?, token=?, status=?, created_date=?, updated_date=? where id=?";
+            $model=$this->userModel;
+            $this->getPasswordUpdateUser();
+            
+            $sql="update user set username=?, password=?, token=?, usertype=?, created_date=?, updated_date=? where id=?";
             $stmt=$this->prepare($sql);
-            $stmt->bind_param('sssssss', $uModel->username,$uModel->password,$uModel->token,$uModel->status,$createD,$uModel->updatedate,$this->employeeModel->id);
+            $stmt->bind_param('sssssss', $model->username,$model->password,$model->token,$model->usertype,$createD,$model->updatedate,$this->employeeModel->id);
             $stmt->execute();
             $this->closeall($stmt);
             
@@ -160,24 +186,115 @@ class EmployeeController extends BASECONTROLLER{
     public function viewEmployee(){
         try{ 
             $this->CheckemployeeId();
-            $empModel=$this->employeeModel;
+            $model=$this->employeeModel;
             parent::__construct();
-            $stmt = $this->prepare("select * from user as u join employee as e on e.user_id=u.id  where e.id=?");  
-            $stmt->bind_param('s', $empModel->id);
+            $stmt = $this->prepare("
+                select
+                e.id employee_id,
+                u.id user_id,
+                u.username username,
+                u.password password,
+                e.first_name firstname,
+                e.last_name lastname, 
+                e.dob dob, 
+                e.tel tel, 
+                e.gender gender, 
+                e.remark remark,
+                v.id village_id,
+                v.name village,
+                d.id district_id,
+                d.name district,
+                p.id province_id,
+                p.name province
+                from user as u join employee as e
+                on e.user_id=u.id join village as v 
+                on e.village_id=v.id  join district as d
+                on v.district_id=d.id  join province as p
+                on d.province_id=p.id
+                where e.id=?
+            ");  
+            $stmt->bind_param('s', $model->id);
             $stmt->execute();  
             $rs = $stmt->get_result(); 
-            $emparray = array();
+            $arr = array();
             if(!empty($rs->num_rows)){
                     foreach($rs as $k=>$v)
                     {
-                        $emparray[] = $v;
+                        $arr= $v;
                     }
-                    $jsonObj='{"Data":'.json_encode($emparray).',"Message":"Select Data Success Full","status":1}';
-                    echo json_encode($jsonObj);
+                    $data=json_encode($arr);
+                    $json = "{\"Data\":$data, \"Message\": \"View Employee ID: $model->id Success Full\", \"Status\":\"1\"}";
+                    echo $json; 
                     $this->closeall($stmt);
                     die;
                 }else{
-                    PrintJSON([],"User Id: $empModel->id Can't valiable", 0);
+                    PrintJSON([],"User Id: $model->id Can't valiable", 0);
+                }
+        }catch(Exception $e){
+            print_r($e->getMessage());
+        }
+    }
+    public function viewAllEmployee(){
+        try{  
+            $model=$this->employeeModel;
+            parent::__construct();
+            // $keywords='';
+            // $search=trim($model->keyword);
+            //     if(!empty(strlen($search))){  //trim() ແມ່ນ function ຕັດ space ທັງຫນ້າ ທັງຫຼັງ
+            //         $keywords.="and 
+            //         (
+            //             v.name like '%".$search."%'
+            //             or d.name like '%".$search."%'
+            //             or p.name like '%".$search."%'
+            //             or e.first_name like '%".$search."%'
+            //             or e.last_name like '%".$search."%'
+            //             or e.gender like '%".$search."%'
+            //             or e.dob like '%".$search."%'
+            //             or e.dob like '%".$search."%'
+            //             or e.dob like '%".$search."%'
+            //         )";
+            //     }
+
+            $stmt = $this->prepare("
+            select
+                e.id employee_id,
+                u.id user_id,
+                u.username username,
+                u.password password,
+                e.first_name firstname,
+                e.last_name lastname, 
+                e.dob dob, 
+                e.tel tel, 
+                e.gender gender, 
+                e.remark remark,
+                v.id village_id,
+                v.name village,
+                d.id district_id,
+                d.name district,
+                p.id province_id,
+                p.name province
+                from user as u join employee as e
+                on e.user_id=u.id join village as v 
+                on e.village_id=v.id  join district as d
+                on v.district_id=d.id  join province as p
+                on d.province_id=p.id
+                where e.id>0 
+            ");  
+            $stmt->execute();  
+            $rs = $stmt->get_result(); 
+            $arr = array();
+            if(!empty($rs->num_rows)){
+                    foreach($rs as $k=>$v)
+                    {
+                        $arr[]= $v;
+                    }
+                    $data=json_encode($arr);
+                    $json = "{\"Data\":$data, \"Message\": \"View Employee Success Full\", \"Status\":\"1\"}";
+                    echo $json; 
+                    $this->closeall($stmt);
+                    die;
+                }else{
+                    PrintJSON([],"Employee Can't valiable", 0);
                 }
         }catch(Exception $e){
             print_r($e->getMessage());
@@ -186,13 +303,13 @@ class EmployeeController extends BASECONTROLLER{
 
     public function getUserId(){
         parent::__construct();
-        $empModel =$this->employeeModel; 
+        $model =$this->employeeModel; 
         $stmt = $this->prepare("select * from employee where id=?");  
-        $stmt->bind_param('s', $empModel->id);
+        $stmt->bind_param('s', $model->id);
         $stmt->execute();   
         $rs = $stmt->get_result(); // get the mysqli result
         if(empty($rs->num_rows)){
-            PrintJSON("", "Employee ID: $empModel->id, Or User ID: $empModel->userid is not available!", 0);
+            PrintJSON("", "Employee ID: $model->id, Or User ID: $model->userid is not available!", 0);
             die(); 
         }else{
 
@@ -211,7 +328,7 @@ class EmployeeController extends BASECONTROLLER{
         $stmt->bind_param('s', $Emodel->userid);
         $stmt->execute();   
         $rs = $stmt->get_result(); // get the mysqli result
-        $createD=[];
+        $createD=0;
         foreach($rs as $k=>$v){
             $createD=$v['created_date']; 
         }

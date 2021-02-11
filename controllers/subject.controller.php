@@ -65,24 +65,51 @@ class SubjectController extends BASECONTROLLER{
     public function viewSubject(){
         try{    
             $this->checkExitSubjectId();
-            $SModel=$this->SJModel;
+            $model=$this->SJModel;
             parent::__construct();
             $stmt = $this->prepare("select * from subject where id=?");  
-            $stmt->bind_param('s', $SModel->id);
+            $stmt->bind_param('s', $model->id);
             $stmt->execute();  
             $rs = $stmt->get_result(); 
-            $SubjectArray = array();
+            $arr = array();
             if(!empty($rs->num_rows)){
                     foreach($rs as $k=>$v)
                     {
-                        $SubjectArray[] = $v;
+                        $arr= $v;
                     }
-                    $jsonObj='"Data":{'.json_encode($SubjectArray, true).',"Message":"Select Data Success Full","status":1}';
-                    echo json_encode($jsonObj);
+                    $data=json_encode($arr);
+                    $json = "{\"Data\":$data, \"Message\": \"View Subject ID: $model->id Success Full\", \"Status\":\"1\"}";
+                    echo $json; 
                     $this->closeall($stmt);
                     die;
                 }else{
-                    PrintJSON([],"Subject Id: $SModel->id Can't valiable", 0);
+                    PrintJSON([],"Subject Id: $model->id Can't valiable", 0);
+                }
+        }catch(Exception $e){
+            print_r($e->getMessage());
+        }
+    }
+
+    public function viewAllSubject(){
+        try{     
+            $model=$this->SJModel;
+            parent::__construct();
+            $stmt = $this->prepare("select * from subject");   
+            $stmt->execute();  
+            $rs = $stmt->get_result(); 
+            $arr = array();
+            if(!empty($rs->num_rows)){
+                    foreach($rs as $k=>$v)
+                    {
+                        $arr[]= $v;
+                    }
+                    $data=json_encode($arr);
+                    $json = "{\"Data\":$data, \"Message\": \"View All Subject Success Full\", \"Status\":\"1\"}";
+                    echo $json; 
+                    $this->closeall($stmt);
+                    die;
+                }else{
+                    PrintJSON([],"Subject Can't valiable", 0);
                 }
         }catch(Exception $e){
             print_r($e->getMessage());
@@ -152,7 +179,7 @@ class SubjectController extends BASECONTROLLER{
         $stmt->bind_param('s', $this->SJModel->id);
         $stmt->execute();   
         $rs = $stmt->get_result(); // get the mysqli result
-        $createD=[];
+        $createD=0;
         foreach($rs as $k=>$v){
             $createD=$v['created_date']; 
         }

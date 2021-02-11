@@ -10,13 +10,23 @@ header("Access-Control-Allow-Methods: PUT, GET, POST, DELETE");
 header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept,token,m,Authorization");
 
 define('timestamp',date('Y-m-d H:i:s'));
-define('usertype',array('parent','teacher','employee'));
+define('usertype',array('parent','teacher','employee','123456',"mmmmkkk"));
 define('gender',array('male','female','other'));
+define('CheckfollowTeacher',array('empty','come','notcome'));
+define('checkStudentLevelStatus',array('empty','studying','pass','notpass'));
+define('Examstatus',array('study','exam'));
 define('semesterdetailmonth',array('9','10','11','12','1','2','3','4','5','6'));
 define('dir_images','../images/');
 
-define('TOKEN_KEY','asfdsdfsfsadfasdfysd09a7a0t012phtjipjfdjsdaf45342tdf');
-function addTime(int $second=0){
+define('TOKEN_KEY','asfdsdfsfsadfasdfysd09a7a0t012phtjipjfdjsdaf45342tdf'); 
+
+abstract class UserRoles{
+    const student="parent";
+    const teacher = "teacher";
+    const employee = "employee";
+    const  usertype = array("parent","teacher","employee");
+}
+function addTime(int $second=0){ 
     return date('Y-m-d h:i:s', time()+$second);
 }
 function subTime(int $second=0){
@@ -84,7 +94,8 @@ function CheckAuthorize(array $authorizes){
     // "updatetime"=>tickTime(),
     // 'exp' => addTime(60*60*24), // ?
     // 'cre' => addTime(),
-   $authorizes =['admin','teacher','student','khouayue'];
+//    $authorizes =UserRoles::usertype;
+//    print_r($authorizes);exit;
    if(!isset($_SESSION['token'])){
     PrintJSON([],'No Authorize',0);
     die();
@@ -92,23 +103,20 @@ function CheckAuthorize(array $authorizes){
 
    $obj = GetJWTObj($_SESSION['token']);
    if($obj){
-    $exp = $obj['exp'];
+        $exp = $obj['exp'];
     // check exp
-      
-      $user = $obj['data']; // id
-    
+        $user = $obj['data']; // id
       //select role from users where id = id;
-       $o = 'teacher';
-       if(!in_array($o,$authorizes)){
-        PrintJSON([],'No authorize 1',0);
+       $rule = UserRoles::usertype;
+    //    if(!in_array($authorizes,$rule)){
+       if(!array_intersect($rule,$authorizes)){
+        PrintJSON([],'No authorize AA',0);
         die();
        }
 
-     
-   
       //$user
    }else{
-       PrintJSON([],'No Authorize 2',0);
+       PrintJSON([],'No Authorize',0);
        die();
    }
    
@@ -152,7 +160,3 @@ function getbase64_name($base64_string) {
 //     // }
 //     return $scanned_directory;
 // }
-
-
-
-?>

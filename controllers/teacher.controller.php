@@ -66,10 +66,11 @@ class TeacherController extends BASECONTROLLER{
 
             // create user
             parent::__construct();
-            $uModel = $this->userModel;
-            $sql="insert into user(username,password,token,status,created_date,updated_date) values(?,?,?,?,?,?)";
+            $model = $this->userModel;
+            $model->password=$this->getPasswordHash($model->password); 
+            $sql="insert into user(username,password,token,usertype,created_date,updated_date) values(?,?,?,?,?,?)";
             $stmt = $this->prepare($sql);
-            $stmt->bind_param('ssssss',$uModel->username,$uModel->password,$uModel->token,$uModel->status,$uModel->createdate,$uModel->updatedate);
+            $stmt->bind_param('ssssss',$model->username,$model->password,$model->token,$model->usertype,$model->createdate,$model->updatedate);
             $stmt->execute();
             $this->userId=$stmt->insert_id;  
             $this->closeall($stmt);
@@ -98,6 +99,28 @@ class TeacherController extends BASECONTROLLER{
         }
         
     }
+
+    function getOldpassword(){
+        parent::__construct();
+        $model=$this->userModel;
+        $sql="select password from user";
+        $stmt=$this->prepare($sql);
+        $stmt->execute();
+        $result=$stmt->get_result();
+    foreach($result as $k=>$v){
+        $pass=$v['password'];
+    }
+        return $pass;
+    }
+    function getPasswordUpdateUser(){
+        $model=$this->userModel;
+        if(strlen($model->password)>55){  
+            $model->password=$this->getOldpassword();  
+        }else{
+            $model->password=$this->getPasswordHash($model->password); 
+        } 
+    }
+
     public function updateTeacher(){ 
         try{ 
             $this->CheckTeacherId();
@@ -106,10 +129,11 @@ class TeacherController extends BASECONTROLLER{
 
             // //update user 
             parent::__construct();
-            $uModel=$this->userModel;
-            $sql="update user set username=?, password=?, token=?, status=?, created_date=?, updated_date=? where id=?";
+            $model=$this->userModel; 
+            $this->getPasswordUpdateUser(); 
+            $sql="update user set username=?, password=?, token=?, usertype=?, created_date=?, updated_date=? where id=?";
             $stmt=$this->prepare($sql);
-            $stmt->bind_param('sssssss', $uModel->username,$uModel->password,$uModel->token,$uModel->status,$createD,$uModel->updatedate,$this->TModel->userid);
+            $stmt->bind_param('sssssss', $model->username,$model->password,$model->token,$model->usertype,$createD,$model->updatedate,$this->TModel->userid);
             $stmt->execute();
             $this->closeall($stmt);
             
@@ -173,24 +197,51 @@ class TeacherController extends BASECONTROLLER{
     public function viewTeacher(){
         try{ 
             $this->CheckTeacherId();
-            $teachModel=$this->TModel;
+            $model=$this->TModel;
             parent::__construct();
             $stmt = $this->prepare("select * from user as u join teacher as e on e.user_id=u.id  where e.id=?");  
-            $stmt->bind_param('s', $teachModel->id);
+            $stmt->bind_param('s', $model->id);
             $stmt->execute();  
             $rs = $stmt->get_result(); 
-            $teacherArray = array();
+            $arr = array();
             if(!empty($rs->num_rows)){
                     foreach($rs as $k=>$v)
                     {
-                        $teacherArray[] = $v;
+                        $arr= $v;
                     }
-                    $jsonObj='"Data":{'.json_encode($teacherArray, true).',"Message":"Select Data Success Full","status":1}';
-                    echo json_encode($jsonObj);
+                    $data=json_encode($arr);
+                    $json = "{\"Data\":$data, \"Message\": \"View Teacher ID: $model->id Success Full\", \"Status\":\"1\"}";
+                    echo $json; 
                     $this->closeall($stmt);
                     die;
                 }else{
-                    PrintJSON([],"User Id: $teachModel->id Can't valiable", 0);
+                    PrintJSON([],"User Id: $model->id Can't valiable", 0);
+                }
+        }catch(Exception $e){
+            print_r($e->getMessage());
+        }
+    }
+
+    public function viewAllTeacher(){
+        try{  
+            $model=$this->TModel;
+            parent::__construct();
+            $stmt = $this->prepare("select * from user as u join teacher as e on e.user_id=u.id");   
+            $stmt->execute();  
+            $rs = $stmt->get_result(); 
+            $arr = array();
+            if(!empty($rs->num_rows)){
+                    foreach($rs as $k=>$v)
+                    {
+                        $arr[]= $v;
+                    }
+                    $data=json_encode($arr);
+                    $json = "{\"Data\":$data, \"Message\": \"View All Teacher Success Full\", \"Status\":\"1\"}";
+                    echo $json; 
+                    $this->closeall($stmt);
+                    die;
+                }else{
+                    PrintJSON([],"User  Can't valiable", 0);
                 }
         }catch(Exception $e){
             print_r($e->getMessage());
@@ -224,7 +275,7 @@ class TeacherController extends BASECONTROLLER{
         $stmt->bind_param('s', $teachModel->userid);
         $stmt->execute();   
         $rs = $stmt->get_result(); // get the mysqli result
-        $createD=[];
+        $createD=0;
         foreach($rs as $k=>$v){
             $createD=$v['created_date']; 
         }

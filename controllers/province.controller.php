@@ -59,25 +59,52 @@ class ProvinceController extends BASECONTROLLER{
 
     public function viewProvince(){
         $this->checkExitLevelId();
-        $pmodel=$this->pvModel;
+        $model=$this->pvModel;
         try{  
             parent::__construct();
             $stmt = $this->prepare("select * from province where id=?");  
-            $stmt->bind_param('s', $pmodel->id);
+            $stmt->bind_param('s', $model->id);
             $stmt->execute();  
             $rs = $stmt->get_result(); 
-            $LvArray = array();
+            $arr = array();
             if(!empty($rs->num_rows)){
                     foreach($rs as $k=>$v)
                     {
-                        $LvArray[] = $v;
+                        $arr= $v;
                     }
-                    $jsonObj='"Data":{'.json_encode($LvArray, true).',"Message":"Select Data Success Full","status":1}';
-                    echo json_encode($jsonObj);
+                    $data=json_encode($arr);
+                    $json = "{\"Data\":$data, \"Message\": \"View Province ID: $model->id Success Full\", \"Status\":\"1\"}";
+                    echo $json; 
                     $this->closeall($stmt);
                     die;
                 }else{
-                    PrintJSON([],"Province Id: $pmodel->id Can't valiable", 0);
+                    PrintJSON([],"Province Id: $model->id Can't valiable", 0);
+                }
+        }catch(Exception $e){
+            print_r($e->getMessage());
+        }
+    }
+
+    public function viewAllProvince(){ 
+        $model=$this->pvModel;
+        try{  
+            parent::__construct();
+            $stmt = $this->prepare("select * from province");   
+            $stmt->execute();  
+            $rs = $stmt->get_result(); 
+            $arr = array();
+            if(!empty($rs->num_rows)){
+                    foreach($rs as $k=>$v)
+                    {
+                        $arr[]= $v;
+                    }
+                    $data=json_encode($arr);
+                    $json = "{\"Data\":$data, \"Message\": \"View All Province Success Full\", \"Status\":\"1\"}";
+                    echo $json; 
+                    $this->closeall($stmt);
+                    die;
+                }else{
+                    PrintJSON([],"Province Can't valiable", 0);
                 }
         }catch(Exception $e){
             print_r($e->getMessage());
@@ -133,7 +160,7 @@ class ProvinceController extends BASECONTROLLER{
         $stmt->bind_param('s', $this->pvModel->id);
         $stmt->execute();   
         $rs = $stmt->get_result(); // get the mysqli result
-        $createD=[];
+        $createD=0;
         foreach($rs as $k=>$v){
             $createD=$v['created_date']; 
         }

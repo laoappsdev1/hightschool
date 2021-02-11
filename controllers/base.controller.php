@@ -8,9 +8,17 @@ class BASECONTROLLER extends MySqli{
     public function __construct() {
         parent::__construct($this->host, $this->user, $this->pass, $this->database);
     }
+    public function setDB($db){
+        $this->database=$db;
+    }
     public function closeall($st){
         $st->close();
         $this->close();
+    }
+
+    public function getPasswordHash($pass){
+        $p=password_hash($pass, PASSWORD_DEFAULT);
+        return $p;
     }
 
 }

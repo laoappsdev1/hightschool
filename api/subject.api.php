@@ -17,6 +17,9 @@ try{
     }else if($m==="view"){  
         $LVC=new SubjectController($json); 
         $LVC->viewSubject();    
+    }else if($m==="viewall"){  
+        $LVC=new SubjectController($json); 
+        $LVC->viewAllSubject();    
     }else{
         echo "Data m Is not Valiable!";
     }

@@ -8,7 +8,7 @@ class UserModel extends BASEMODEL{
     public string $username;
     public string $password;
     public string $token;
-    public string $status; 
+    public string $usertype; 
 
     public function __construct()
     { 
@@ -32,8 +32,8 @@ class UserModel extends BASEMODEL{
             return $this->validateUsername();
             case "password":
             return $this->validatePassword();
-            case "status":
-            return $this->validateStatus();
+            case "usertype":
+            return $this->validateUsertype();
         }
         return [];
     }
@@ -44,9 +44,10 @@ class UserModel extends BASEMODEL{
             $result[]= '{"message":"user name is empty","status":0}';
         }
         
-        if (strlen($this->username) < 3) { 
+        if (strlen($this->username) < 6) { 
            $result[]= '{"message":"user name is too short","status":0}';
         } 
+        
         if (!preg_match('/^[a-zA-Z]+[a-zA-Z0-9._]+$/', $this->username)) { 
             $result[]= '{"message":"user name must be alphanumberic","status":0}';
         }
@@ -65,10 +66,10 @@ class UserModel extends BASEMODEL{
         return $result;
     }
     
-    public function validateStatus():array{
+    public function validateUsertype():array{
         $result =array();
-        if(!in_array($this->status, usertype)){
-            PrintJSON(""," user status: ".$this->status. " is not available!", 0);
+        if(!in_array($this->usertype, UserRoles::usertype)){
+            PrintJSON(""," user usertype: ".$this->usertype. " is not available!", 0);
             die();
         }    
         return $result;

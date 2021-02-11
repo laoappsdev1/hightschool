@@ -17,6 +17,9 @@ try{
     }else if($m==="view"){  
         $PC=new ParentController($json); 
         $PC->viewParent();   
+    }else if($m==="viewall"){  
+        $PC=new ParentController($json); 
+        $PC->viewAllParent();   
     }else{
         echo "Data m Is not Valiable!";
     }

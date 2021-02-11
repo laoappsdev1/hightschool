@@ -66,24 +66,51 @@ class SemesterDetailController extends BASECONTROLLER{
     public function viewSemesterDetail(){
         try{    
             $this->checkExitSemesterDetailId();
-            $SMTD=$this->smtdModel;
+            $model=$this->smtdModel;
             parent::__construct();
             $stmt = $this->prepare("select * from semester_detail where id=?");  
-            $stmt->bind_param('s', $SMTD->id);
+            $stmt->bind_param('s', $model->id);
             $stmt->execute();  
             $rs = $stmt->get_result(); 
-            $smtdarray = array();
+            $arr = array();
             if(!empty($rs->num_rows)){
                     foreach($rs as $k=>$v)
                     {
-                        $smtdarray[] = $v;
+                        $arr= $v;
                     }
-                    $jsonObj='"Data":{'.json_encode($smtdarray, true).',"Message":"Select Data Success Full","status":1}';
-                    echo json_encode($jsonObj);
+                    $data=json_encode($arr);
+                    $json = "{\"Data\":$data, \"Message\": \"View Semester Detail ID: $model->id Success Full\", \"Status\":\"1\"}";
+                    echo $json; 
                     $this->closeall($stmt);
                     die;
                 }else{
-                    PrintJSON([],"Semester Detail Id: $SMTD->id Can't valiable", 0);
+                    PrintJSON([],"Semester Detail Id: $model->id Can't valiable", 0);
+                }
+        }catch(Exception $e){
+            print_r($e->getMessage());
+        }
+    }
+
+    public function viewAllSemesterDetail(){
+        try{     
+            $model=$this->smtdModel;
+            parent::__construct();
+            $stmt = $this->prepare("select * from semester_detail");   
+            $stmt->execute();  
+            $rs = $stmt->get_result(); 
+            $arr = array();
+            if(!empty($rs->num_rows)){
+                    foreach($rs as $k=>$v)
+                    {
+                        $arr[]= $v;
+                    }
+                    $data=json_encode($arr);
+                    $json = "{\"Data\":$data, \"Message\": \"View All Semester Detail Success Full\", \"Status\":\"1\"}";
+                    echo $json; 
+                    $this->closeall($stmt);
+                    die;
+                }else{
+                    PrintJSON([],"Semester Detail Can't valiable", 0);
                 }
         }catch(Exception $e){
             print_r($e->getMessage());
@@ -153,7 +180,7 @@ class SemesterDetailController extends BASECONTROLLER{
         $stmt->bind_param('s', $this->smtdModel->id);
         $stmt->execute();   
         $rs = $stmt->get_result(); // get the mysqli result
-        $createD=[];
+        $createD=0;
         foreach($rs as $k=>$v){
             $createD=$v['created_date']; 
         }

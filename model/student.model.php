@@ -75,9 +75,9 @@ class StudentModel extends BASEMODEL{
 
     function validateGender(){
         $result =array();
-        if(!in_array($this->gender, gender)){
-            PrintJSON(""," your Gender: ".$this->gender. " is not available!", 0);
-            die();
+        if(!in_array($this->gender, gender)){ 
+            $result[]= '{"message":"your gander is not valiable","status":0}';
+             
         }    
         return $result;
     }

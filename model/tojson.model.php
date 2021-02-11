@@ -22,7 +22,8 @@ class Tojson{
                 }
             } 
         } catch (TypeError  $e) { 
-            PrintJSON([],$e->getMessage()." Line ". $e->getLine(),0);
+            // PrintJSON([],$e->getMessage()." Line ". $e->getLine(),0);)
+            PrintJSON([],$e->getMessage(),0);
             die();
         }
       
@@ -33,5 +34,12 @@ class Tojson{
             $d = DateTime::createFromFormat($format, $date);
             return $d && $d->format($format) == $date;
         }
+    function validateTime($mytime)
+        { 
+            $time = preg_match('#^([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$#', $mytime);
+            return $time;
+        }
+
+       
 }
 ?>

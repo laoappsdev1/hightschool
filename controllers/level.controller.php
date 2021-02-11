@@ -58,26 +58,54 @@ class LevelController extends BASECONTROLLER{
     }
 
     public function viewLevel(){
-        $this->checkExitLevelId();
-        $levelM=$this->LModel;
         try{  
+            
+            $this->checkExitLevelId();
+            $model=$this->LModel;
             parent::__construct();
             $stmt = $this->prepare("select * from level where id=?");  
-            $stmt->bind_param('s', $levelM->id);
+            $stmt->bind_param('s', $model->id);
             $stmt->execute();  
             $rs = $stmt->get_result(); 
-            $LvArray = array();
+            $arr = array();
             if(!empty($rs->num_rows)){
                     foreach($rs as $k=>$v)
                     {
-                        $LvArray[] = $v;
+                        $arr= $v;
                     }
-                    $jsonObj='"Data":{'.json_encode($LvArray, true).',"Message":"Select Data Success Full","status":1}';
-                    echo json_encode($jsonObj);
+                    $data=json_encode($arr);
+                    $json = "{\"Data\":$data, \"Message\": \"View Level ID: $model->id Success Full\", \"Status\":\"1\"}";
+                    echo $json; 
                     $this->closeall($stmt);
                     die;
                 }else{
-                    PrintJSON([],"Level Id: $levelM->id Can't valiable", 0);
+                    PrintJSON([],"Level Id: $model->id Can't valiable", 0);
+                }
+        }catch(Exception $e){
+            print_r($e->getMessage());
+        }
+    }
+
+    public function viewAllLevel(){ 
+        try{   
+            $model=$this->LModel;
+            parent::__construct();
+            $stmt = $this->prepare("select * from level");   
+            $stmt->execute();  
+            $rs = $stmt->get_result(); 
+            $arr = array();
+            if(!empty($rs->num_rows)){
+                    foreach($rs as $k=>$v)
+                    {
+                        $arr[]= $v;
+                    }
+                    $data=json_encode($arr);
+                    $json = "{\"Data\":$data, \"Message\": \"View All Level Success Full\", \"Status\":\"1\"}";
+                    echo $json; 
+                    $this->closeall($stmt);
+                    die;
+                }else{
+                    PrintJSON([],"Level Can't valiable", 0);
                 }
         }catch(Exception $e){
             print_r($e->getMessage());
@@ -133,7 +161,7 @@ class LevelController extends BASECONTROLLER{
         $stmt->bind_param('s', $this->LModel->id);
         $stmt->execute();   
         $rs = $stmt->get_result(); // get the mysqli result
-        $createD=[];
+        $createD=0;
         foreach($rs as $k=>$v){
             $createD=$v['created_date']; 
         }

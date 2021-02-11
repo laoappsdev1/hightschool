@@ -62,23 +62,50 @@ class SemesterController extends BASECONTROLLER{
         $this->checkExitSemesterId(); 
         try{  
             parent::__construct();
-            $id=$this->SMmodel->id;
+            $model=$this->SMmodel; 
             $stmt = $this->prepare("select * from Semester where id=?");  
-            $stmt->bind_param('s', $id);
+            $stmt->bind_param('s', $model->id);
             $stmt->execute();  
             $rs = $stmt->get_result(); 
             $SmtArray = array();
             if(!empty($rs->num_rows)){
                     foreach($rs as $k=>$v)
                     {
-                        $SmtArray[] = $v;
+                        $arr= $v;
                     }
-                    $jsonObj='"Data":{'.json_encode($SmtArray, true).',"Message":"Select Data Success Full","status":1}';
-                    echo json_encode($jsonObj);
+                    $data=json_encode($arr);
+                    $json = "{\"Data\":$data, \"Message\": \"View Semester ID: $model->id Success Full\", \"Status\":\"1\"}";
+                    echo $json; 
                     $this->closeall($stmt);
                     die;
                 }else{
-                    PrintJSON([],"Semester Id: $id Can't valiable", 0);
+                    PrintJSON([],"Semester Id: $model->id Can't valiable", 0);
+                }
+        }catch(Exception $e){
+            print_r($e->getMessage());
+        }
+    }
+
+    public function viewAllSemester(){ 
+        try{  
+            parent::__construct();
+            $model=$this->SMmodel; 
+            $stmt = $this->prepare("select * from Semester");   
+            $stmt->execute();  
+            $rs = $stmt->get_result(); 
+            $arr = array();
+            if(!empty($rs->num_rows)){
+                    foreach($rs as $k=>$v)
+                    {
+                        $arr[]= $v;
+                    }
+                    $data=json_encode($arr);
+                    $json = "{\"Data\":$data, \"Message\": \"View All Semester Success Full\", \"Status\":\"1\"}";
+                    echo $json; 
+                    $this->closeall($stmt);
+                    die;
+                }else{
+                    PrintJSON([],"Semester Can't valiable", 0);
                 }
         }catch(Exception $e){
             print_r($e->getMessage());
@@ -136,7 +163,7 @@ class SemesterController extends BASECONTROLLER{
         $stmt->bind_param('s', $this->SMmodel->id);
         $stmt->execute();   
         $rs = $stmt->get_result(); // get the mysqli result
-        $createD=[];
+        $createD=0;
         foreach($rs as $k=>$v){
             $createD=$v['created_date']; 
         }

@@ -66,25 +66,79 @@ class ClassRoomController extends BASECONTROLLER{
     public function viewClassroom(){
         try{    
             $this->checkExitClassroomId();
-            $classmodel=$this->crModel;
+            $model=$this->crModel;
             parent::__construct();
-            $stmt = $this->prepare("select * from classroom where id=?");  
-            $stmt->bind_param('s', $classmodel->id);
+            // $stmt = $this->prepare("select * from classroom where id=?");  
+            $stmt = $this->prepare("
+                select 
+                c.id as classroom_id,  
+                c.class_number as class_number,
+                l.id as level_id,
+                l.name as level,
+                c.created_date as created_date,
+                c.updated_date as updated_date
+                from classroom as c join level as l 
+                on c.level_id=l.id where c.id=?"
+            );  
+            $stmt->bind_param('s', $model->id);
             $stmt->execute();  
             $rs = $stmt->get_result(); 
-            $classArr = array();
+            $arr = array();
             if(!empty($rs->num_rows)){
                     foreach($rs as $k=>$v)
                     {
-                        $classArr[] = $v;
+                        $arr = $v;
                     }
-                    $jsonObj='"Data":{'.json_encode($classArr, true).',"Message":"Select Data Success Full","status":1}';
-                    echo json_encode($jsonObj);
+                    $data=json_encode($arr);
+                    $json = "{\"Data\":$data, \"Message\": \"View Classromm ID: $model->id Success Full\", \"Status\":\"1\"}";
+                    echo $json;
                     $this->closeall($stmt);
                     die;
                 }else{
-                    PrintJSON([],"class room Id: $classmodel->id Can't valiable", 0);
+                    PrintJSON([],"class room Id: $model->id Can't valiable", 0);
                 }
+        }catch(Exception $e){
+            print_r($e->getMessage());
+        }
+    }
+
+    public function viewAllClassroom(){
+        try{     
+            $model=$this->crModel;
+            $keywords='';
+            $search=trim($model->keyword);
+            if(!empty(strlen($search))){  //trim() ແມ່ນ function ຕັດ space ທັງຫນ້າ ທັງຫຼັງ
+                $keywords.="and 
+                (
+                    c.class_number like '%".$search."%'
+                    or l.name like '%".$search."%'
+                )";
+            }
+            parent::__construct(); 
+            $stmt = $this->prepare("
+                select 
+                c.id as classroom_id,  
+                c.class_number as class_number,
+                l.id as level_id,
+                l.name as level,
+                c.created_date as created_date,
+                c.updated_date as updated_date
+                from classroom as c join level as l 
+                on c.level_id=l.id 
+                where c.id>0 
+                $keywords"
+            );   
+            $stmt->execute();  
+            $result = $stmt->get_result();
+            if(!empty($result->num_rows)){
+            $arr=array();
+                while($row =$result->fetch_assoc()){ 
+                $arr[]=$row;
+                }   
+                $data= json_encode($arr);
+                $json = "{\"Data\":$data, \"Message\": \"View All Classroom Success Full\", \"Status\": \"1\"}";
+                echo $json;
+            } 
         }catch(Exception $e){
             print_r($e->getMessage());
         }
@@ -155,7 +209,7 @@ class ClassRoomController extends BASECONTROLLER{
         $stmt->bind_param('s', $this->crModel->id);
         $stmt->execute();   
         $rs = $stmt->get_result(); // get the mysqli result
-        $createD=[];
+        $createD=0;
         foreach($rs as $k=>$v){
             $createD=$v['created_date']; 
         }

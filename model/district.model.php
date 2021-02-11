@@ -8,6 +8,9 @@ class DistrictModel extends BASEMODEL{
     public int $provinceid;  
     public string $name;  
 
+    public string $keyword; // ໃຊ້ເພື່ອຄົ້ນຫາຂໍ້ມູນ Keyword;
+
+
     public function __construct()
     { 
         parent::__construct();

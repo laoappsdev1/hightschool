@@ -67,24 +67,50 @@ class VillageController extends BASECONTROLLER{
     public function viewVillage(){
         try{    
             $this->checkExitVillageId();
-            $SModel=$this->vlModel;
+            $model=$this->vlModel;
             parent::__construct();
             $stmt = $this->prepare("select * from village where id=?");  
-            $stmt->bind_param('s', $SModel->id);
+            $stmt->bind_param('s', $model->id);
             $stmt->execute();  
             $rs = $stmt->get_result(); 
-            $villagetArray = array();
+            $arr = array();
             if(!empty($rs->num_rows)){
                     foreach($rs as $k=>$v)
                     {
-                        $villagetArray[] = $v;
+                        $arr= $v;
                     }
-                    $jsonObj='"Data":{'.json_encode($villagetArray, true).',"Message":"Select Data Success Full","status":1}';
-                    echo json_encode($jsonObj);
+                    $data=json_encode($arr);
+                    $json = "{\"Data\":$data, \"Message\": \"View Village ID: $model->id Success Full\", \"Status\":\"1\"}";
+                    echo $json; 
                     $this->closeall($stmt);
                     die;
                 }else{
-                    PrintJSON([],"Village Id: $SModel->id Can't valiable", 0);
+                    PrintJSON([],"Village Id: $model->id Can't valiable", 0);
+                }
+        }catch(Exception $e){
+            print_r($e->getMessage());
+        }
+    }
+    public function viewAllVillage(){
+        try{     
+            $model=$this->vlModel;
+            parent::__construct();
+            $stmt = $this->prepare("select * from village");   
+            $stmt->execute();  
+            $rs = $stmt->get_result(); 
+            $arr = array();
+            if(!empty($rs->num_rows)){
+                    foreach($rs as $k=>$v)
+                    {
+                        $arr[]= $v;
+                    }
+                    $data=json_encode($arr);
+                    $json = "{\"Data\":$data, \"Message\": \"View All Village Success Full\", \"Status\":\"1\"}";
+                    echo $json; 
+                    $this->closeall($stmt);
+                    die;
+                }else{
+                    PrintJSON([],"Village Can't valiable", 0);
                 }
         }catch(Exception $e){
             print_r($e->getMessage());
@@ -156,7 +182,7 @@ class VillageController extends BASECONTROLLER{
         $stmt->bind_param('s', $this->vlModel->id);
         $stmt->execute();   
         $rs = $stmt->get_result(); // get the mysqli result
-        $createD=[];
+        $createD=0;
         foreach($rs as $k=>$v){
             $createD=$v['created_date']; 
         }

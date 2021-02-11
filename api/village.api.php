@@ -17,6 +17,9 @@ try{
     }else if($m==="view"){  
         $VL=new VillageController($json); 
         $VL->viewVillage();    
+    }else if($m==="viewall"){  
+        $VL=new VillageController($json); 
+        $VL->viewAllVillage();    
     }else{
         echo "Data m Is not Valiable!";
     }

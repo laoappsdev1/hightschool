@@ -17,6 +17,9 @@ try{
     }else if($m==="view"){  
         $Smtd=new SemesterDetailController($json); 
         $Smtd->viewSemesterDetail();    
+    }else if($m==="viewall"){  
+        $Smtd=new SemesterDetailController($json); 
+        $Smtd->viewAllSemesterDetail();    
     }else{
         echo "Data m Is not Valiable!";
     }

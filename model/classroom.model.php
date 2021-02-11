@@ -8,6 +8,8 @@ class ClassRoomModel extends BASEMODEL{
     public int $levelid;  
     public string $classnumber;  
 
+    public string $keyword; // ໃຊ້ເພື່ອຄົ້ນຫາຂໍ້ມູນ Keyword;
+
     public function __construct()
     { 
         parent::__construct();

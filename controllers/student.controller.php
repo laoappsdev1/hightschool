@@ -6,7 +6,7 @@ include_once ('../model/parent.model.php');
 class StudentController extends BASECONTROLLER{ 
 
     public $studentModel;  
-    public $parent_id; 
+    // public $parent_id; 
 
     public function __construct($object){
         parent::__construct(); 
@@ -44,7 +44,7 @@ class StudentController extends BASECONTROLLER{
             $stmt = $this->prepare($sql);
             $stmt->bind_param('sssssssssss',$STD->firstname,$STD->lastname,$STD->gender,$STD->villageid,$STD->dob,$STD->tel,$STD->img,$STD->fromschool,$STD->parentid,$STD->createdate,$STD->updatedate);
             if($stmt->execute()){ 
-                PrintJSON([],"Create Student First Name: $STD->firstname, Success Full",0);
+                PrintJSON([],"Create Student First Name: $STD->firstname, Success Full",1);
                 $this->closeall($stmt);
             } 
         }catch (Exception $e){
@@ -63,21 +63,21 @@ class StudentController extends BASECONTROLLER{
             if(!empty($this->studentModel->img))
             { 
                 $this->DeleteOldFile(); 
-                $Img_name="Student".time().rand(100,999).".".getbase64_name($this->studentModel->img); 
+                $Img_name="Student_".time().rand(100,999).".".getbase64_name($this->studentModel->img); 
                 base64_to_jpeg($this->studentModel->img, dir_images.$Img_name);   
                 $this->studentModel->img=$Img_name;
             }else{
                 $this->studentModel->img=$this->getOldFile(); 
-            }
+            } 
             $createD=$this->getDateCreate(); 
             $STD=$this->studentModel;
-            $sql2="update student set firstname=?, lastname=?, gender=?,village_id=?, dob=?, tel=?, parent_id=? , fromschool=? , image=?, created_date=?, updated_date=?  where id=?";
-            $stmt2=$this->prepare($sql2);
-            $stmt2->bind_param('ssssssssssss', $STD->firstname,$STD->lastname,$STD->gender,$STD->villageid,$STD->dob,$STD->tel,$STD->parentid,$STD->fromschool,$STD->img,$createD,$STD->updatedate,$STD->id);
-            if($stmt2->execute()){ 
+            $sql="update student set firstname=?, lastname=?, gender=?, village_id=?, dob=?, tel=?, parent_id=? , fromschool=? , image=?, created_date=?, updated_date=?  where id=?";
+            $stmt=$this->prepare($sql); 
+            $stmt->bind_param('ssssssssssss',$STD->firstname,$STD->lastname,$STD->gender,$STD->villageid,$STD->dob,$STD->tel,$STD->parentid,$STD->fromschool,$STD->img,$createD,$STD->updatedate,$STD->id);
+            if($stmt->execute()){ 
                 PrintJSON([],"Update Student Firstname: $STD->firstname Success Full",1);
             }
-
+            $this->closeall($stmt);
         }catch(Exception $e){
             print_r($e->getMessage());
         }
@@ -105,24 +105,51 @@ class StudentController extends BASECONTROLLER{
     public function viewstudent(){
         try{ 
             $this->CheckstudentId();
-            $STD=$this->studentModel;
+            $model=$this->studentModel;
             parent::__construct();
             $stmt = $this->prepare("select * from student where id=?");  
-            $stmt->bind_param('s', $STD->id);
+            $stmt->bind_param('s', $model->id);
             $stmt->execute();  
             $rs = $stmt->get_result(); 
-            $studentArray = array();
+            $arr = array();
             if(!empty($rs->num_rows)){
                     foreach($rs as $k=>$v)
                     {
-                        $studentArray[] = $v;
+                        $arr= $v;
                     }
-                    $jsonObj='"Data":{'.json_encode($studentArray, true).',"Message":"Select Data Success Full","status":1}';
-                    echo json_encode($jsonObj);
+                    $data=json_encode($arr);
+                    $json = "{\"Data\":$data, \"Message\": \"View Student ID: $model->id Success Full\", \"Status\":\"1\"}";
+                    echo $json; 
                     $this->closeall($stmt);
                     die;
                 }else{
-                    PrintJSON([],"student Id: $STD->id Can't valiable", 0);
+                    PrintJSON([],"student Id: $model->id Can't valiable", 0);
+                }
+        }catch(Exception $e){
+            print_r($e->getMessage());
+        }
+    }
+
+    public function viewAllstudent(){
+        try{  
+            $model=$this->studentModel;
+            parent::__construct();
+            $stmt = $this->prepare("select * from student");   
+            $stmt->execute();  
+            $rs = $stmt->get_result(); 
+            $arr = array();
+            if(!empty($rs->num_rows)){
+                    foreach($rs as $k=>$v)
+                    {
+                        $arr[]= $v;
+                    }
+                    $data=json_encode($arr);
+                    $json = "{\"Data\":$data, \"Message\": \"View All Student Success Full\", \"Status\":\"1\"}";
+                    echo $json; 
+                    $this->closeall($stmt);
+                    die;
+                }else{
+                    PrintJSON([],"student Can't valiable", 0);
                 }
         }catch(Exception $e){
             print_r($e->getMessage());
@@ -152,7 +179,7 @@ class StudentController extends BASECONTROLLER{
         $stmt->bind_param('s', $STD->parentid);
         $stmt->execute();   
         $rs = $stmt->get_result(); // get the mysqli result
-        $createD=[];
+        $createD=0;
         foreach($rs as $k=>$v){
             $createD=$v['created_date']; 
         }
