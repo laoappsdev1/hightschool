@@ -3,12 +3,19 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 include_once('base.model.php');
-class AdminModel extends BASEMODEL{
+class SchoolModel extends BASEMODEL{
     public int $id;
+    public int $adminschoolid;  
     public string $username;
     public string $password;
     public string $status;
-    public string $usertype; 
+    public string $dbname; 
+    public string $name;  
+    public string $tel;  
+    public string $email;  
+    public string $address;  
+    public string $img;  
+    public string $description;  
 
     public function __construct()
     { 
@@ -32,8 +39,14 @@ class AdminModel extends BASEMODEL{
             return $this->validateUsername();
             case "password":
             return $this->validatePassword();
-            case "usertype":
-            return $this->validateUsertype();
+            case "status":
+            return $this->validateStatus();
+            case "dbname":
+            return $this->validateDbname();
+            case "name":
+            return $this->validateName();
+            case "tel":
+            return $this->validateTel(); 
         }
         return [];
     }
@@ -41,19 +54,20 @@ class AdminModel extends BASEMODEL{
     function validateUserName():array{
         $result=array();
         if ($this->username === "") { 
-            $result[]= '{"message":"user name is empty","status":0}';
+            $result[]= '{"message":"user School is empty","status":0}';
         }
         
         if (strlen($this->username) < 6) { 
-           $result[]= '{"message":"user name is too short","status":0}';
+           $result[]= '{"message":"user School is too short","status":0}';
         } 
         
         if (!preg_match('/^[a-zA-Z]+[a-zA-Z0-9._]+$/', $this->username)) { 
-            $result[]= '{"message":"user name must be alphanumberic","status":0}';
+            $result[]= '{"message":"user School must be alphanumberic","status":0}';
         }
 
         return $result;
     }
+    
     function validatePassword():array
     {
         $uppercase = preg_match('@[A-Z]@', $this->password);
@@ -66,11 +80,35 @@ class AdminModel extends BASEMODEL{
         return $result;
     }
     
-    public function validateUsertype():array{
+    public function validateDbname():array{
         $result =array();
-        if(!in_array($this->usertype, UserRoles::usertype)){
-            PrintJSON(""," user usertype: ".$this->usertype. " is not available!", 0);
-            die();
+        if(empty(trim(($this->dbname)))){
+            $result[]= PrintJSON(""," School dbname: ".$this->dbname. " empty", 0); 
+        }   
+        
+        if (!preg_match('/^[a-zA-Z]+[a-zA-Z0-9._]+$/', $this->dbname)) { 
+            $result[]= '{"message":"School Database Name: "'.$this->dbname.'", must be alphanumberic","status":0}';
+        }
+        return $result;
+    }
+    public function validateName():array{
+        $result =array();
+        if(empty(trim(($this->name)))){
+            $result[]= PrintJSON(""," School name: ".$this->name. " empty", 0); 
+        }    
+        return $result;
+    }
+    public function validateTel():array{
+        $result =array();
+        if(empty(trim(($this->tel)))){
+            $result[]= PrintJSON(""," School tel: ".$this->tel. " empty", 0); 
+        }    
+        return $result;
+    }
+    public function validateStatus():array{
+        $result =array();
+        if(!in_array($this->status, schoolstatus)){
+            $result[]= PrintJSON(""," School status: ".$this->status. " is not available!", 0); 
         }    
         return $result;
     }

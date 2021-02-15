@@ -9,6 +9,8 @@ class AdminModel extends BASEMODEL{
     public string $password;
     public string $status;
     public string $usertype; 
+    public string $dbname; 
+
 
     public function __construct()
     { 
@@ -32,8 +34,8 @@ class AdminModel extends BASEMODEL{
             return $this->validateUsername();
             case "password":
             return $this->validatePassword();
-            case "usertype":
-            return $this->validateUsertype();
+            case "status":
+            return $this->validateStatus();
         }
         return [];
     }
@@ -66,10 +68,10 @@ class AdminModel extends BASEMODEL{
         return $result;
     }
     
-    public function validateUsertype():array{
+    public function validateStatus():array{
         $result =array();
-        if(!in_array($this->usertype, UserRoles::usertype)){
-            PrintJSON(""," user usertype: ".$this->usertype. " is not available!", 0);
+        if(!in_array($this->status, AdminStatus)){
+            PrintJSON(""," Admin School Status: ".$this->status. " is not available!", 0);
             die();
         }    
         return $result;

@@ -105,11 +105,13 @@ class EmployeeController extends BASECONTROLLER{
         $stmt=$this->prepare($sql);
         $stmt->execute();
         $result=$stmt->get_result();
-    foreach($result as $k=>$v){
-        $pass=$v['password'];
-    }
+        foreach($result as $k=>$v){
+            $pass=$v['password'];
+        }
+        $this->closeall($stmt);
         return $pass;
     }
+
     function getPasswordUpdateUser(){
         $model=$this->userModel;
         if(strlen($model->password)>55){  
@@ -129,7 +131,7 @@ class EmployeeController extends BASECONTROLLER{
             parent::__construct();
             $model=$this->userModel;
             $this->getPasswordUpdateUser();
-            
+
             $sql="update user set username=?, password=?, token=?, usertype=?, created_date=?, updated_date=? where id=?";
             $stmt=$this->prepare($sql);
             $stmt->bind_param('sssssss', $model->username,$model->password,$model->token,$model->usertype,$createD,$model->updatedate,$this->employeeModel->id);
@@ -189,29 +191,7 @@ class EmployeeController extends BASECONTROLLER{
             $model=$this->employeeModel;
             parent::__construct();
             $stmt = $this->prepare("
-                select
-                e.id employee_id,
-                u.id user_id,
-                u.username username,
-                u.password password,
-                e.first_name firstname,
-                e.last_name lastname, 
-                e.dob dob, 
-                e.tel tel, 
-                e.gender gender, 
-                e.remark remark,
-                v.id village_id,
-                v.name village,
-                d.id district_id,
-                d.name district,
-                p.id province_id,
-                p.name province
-                from user as u join employee as e
-                on e.user_id=u.id join village as v 
-                on e.village_id=v.id  join district as d
-                on v.district_id=d.id  join province as p
-                on d.province_id=p.id
-                where e.id=?
+                select*from employee  where id=?
             ");  
             $stmt->bind_param('s', $model->id);
             $stmt->execute();  
@@ -237,49 +217,9 @@ class EmployeeController extends BASECONTROLLER{
     public function viewAllEmployee(){
         try{  
             $model=$this->employeeModel;
-            parent::__construct();
-            // $keywords='';
-            // $search=trim($model->keyword);
-            //     if(!empty(strlen($search))){  //trim() ແມ່ນ function ຕັດ space ທັງຫນ້າ ທັງຫຼັງ
-            //         $keywords.="and 
-            //         (
-            //             v.name like '%".$search."%'
-            //             or d.name like '%".$search."%'
-            //             or p.name like '%".$search."%'
-            //             or e.first_name like '%".$search."%'
-            //             or e.last_name like '%".$search."%'
-            //             or e.gender like '%".$search."%'
-            //             or e.dob like '%".$search."%'
-            //             or e.dob like '%".$search."%'
-            //             or e.dob like '%".$search."%'
-            //         )";
-            //     }
+            parent::__construct(); 
 
-            $stmt = $this->prepare("
-            select
-                e.id employee_id,
-                u.id user_id,
-                u.username username,
-                u.password password,
-                e.first_name firstname,
-                e.last_name lastname, 
-                e.dob dob, 
-                e.tel tel, 
-                e.gender gender, 
-                e.remark remark,
-                v.id village_id,
-                v.name village,
-                d.id district_id,
-                d.name district,
-                p.id province_id,
-                p.name province
-                from user as u join employee as e
-                on e.user_id=u.id join village as v 
-                on e.village_id=v.id  join district as d
-                on v.district_id=d.id  join province as p
-                on d.province_id=p.id
-                where e.id>0 
-            ");  
+            $stmt = $this->prepare("select*from employee");  
             $stmt->execute();  
             $rs = $stmt->get_result(); 
             $arr = array();
@@ -350,6 +290,7 @@ class EmployeeController extends BASECONTROLLER{
     }
     public function CheckVillageId(){ 
         parent::__construct(); 
+        $this->setDB(adminschool_db);
         $empModel =$this->employeeModel; 
         $stmt = $this->prepare("select * from village where id=?");  
         $stmt->bind_param('s', $empModel->villageid);

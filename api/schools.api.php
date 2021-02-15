@@ -1,6 +1,5 @@
 <?php  
-   
-    include_once("../controllers/admin.controller.php"); 
+    include_once("../controllers/schools.controller.php"); 
     // echo "sdfasdfasd";exit;
     try{ 
         Initialization();
@@ -8,24 +7,24 @@
         $json = json_decode(file_get_contents('php://input'), true);   
         if($m==='create'){  
             // CheckAuthorize(['teacher']);
-            $uc=new AdminController($json);
-            $uc->CreateUser(); 
+            $uc=new SchoolController($json);
+            $uc->CreateUserSchool(); 
         }else if($m==='update'){  
             // CheckAuthorize(['teacher']);
-            $uc=new AdminController($json);
-            $uc->UpdateUser();             
+            $uc=new SchoolController($json);
+            $uc->UpdateUserSchool();             
         }else if($m==='view'){ 
             // CheckAuthorize(['teacher']);
-            $uc=new AdminController($json);
-            $uc->ViewUser();
+            $uc=new SchoolController($json);
+            $uc->ViewUserSchool();
         }else if($m==='viewall'){ 
             // CheckAuthorize(['teacher']);
-            $uc=new AdminController($json);
-            $uc->ViewAllUser();
+            $uc=new SchoolController($json);
+            $uc->ViewAllUserSchool();
         }else if($m==='delete'){ 
             // CheckAuthorize(['teacher']);
-            $uc=new AdminController($json);
-            $uc->Delete();
+            $uc=new SchoolController($json);
+            $uc->DeleteUserSchool();
             echo "Delete";
         }else{
             echo "Faild";

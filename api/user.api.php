@@ -7,23 +7,23 @@
         $m=isset($_SESSION['m'])?$_SESSION['m']:'';
         $json = json_decode(file_get_contents('php://input'), true);   
         if($m==='create'){  
-            CheckAuthorize(['teacher']);
+            // CheckAuthorize(['teacher']);
             $uc=new UserController($json);
             $uc->CreateUser(); 
         }else if($m==='update'){  
-            CheckAuthorize(['teacher']);
+            // CheckAuthorize(['teacher']);
             $uc=new UserController($json);
             $uc->UpdateUser();             
         }else if($m==='view'){ 
-            CheckAuthorize(['teacher']);
+            // CheckAuthorize(['teacher']);
             $uc=new UserController($json);
             $uc->ViewUser();
         }else if($m==='viewall'){ 
-            CheckAuthorize(['teacher']);
+            // CheckAuthorize(['teacher']);
             $uc=new UserController($json);
             $uc->ViewAllUser();
         }else if($m==='delete'){ 
-            CheckAuthorize(['teacher']);
+            // CheckAuthorize(['teacher']);
             $uc=new UserController($json);
             $uc->Delete();
             echo "Delete";

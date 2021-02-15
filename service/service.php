@@ -7,11 +7,14 @@ include_once('jwt.php');
 error_reporting(E_ALL ^ E_NOTICE); 		
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: PUT, GET, POST, DELETE");
-header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept,token,m,Authorization");
+header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept,token,m,s,Authorization");
 
 define('timestamp',date('Y-m-d H:i:s'));
 define('usertype',array('parent','teacher','employee','123456',"mmmmkkk"));
 define('gender',array('male','female','other'));
+define('adminschool_db','adminschool_db');
+define('AdminStatus',array('active','inactive'));
+define('schoolstatus',array('active','inactive'));
 define('CheckfollowTeacher',array('empty','come','notcome'));
 define('checkStudentLevelStatus',array('empty','studying','pass','notpass'));
 define('Examstatus',array('study','exam'));
@@ -61,6 +64,8 @@ function Initialization()
 {
     $token = isset(getallheaders()['token'])?getallheaders()['token']:'';
     $_SESSION['m'] = isset(getallheaders()['m'])?getallheaders()['m']:'';
+    // $_SESSION['s'] = isset(getallheaders()['s'])?getallheaders()['s']:'admindb';
+    $_SESSION['s'] = isset(getallheaders()['s'])?getallheaders()['s']:'';
     $_SESSION['token']=$token;
     $_SESSION['user'] = getDetailsToken($token);
     $_SESSION['exp'] = getAvailableToken($token);

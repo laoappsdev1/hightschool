@@ -8,6 +8,7 @@ class AdminController extends BASECONTROLLER{
 
     public function __construct($object){
         parent::__construct();
+        $this->setDB(adminschool_db);
 
         $AModel=new AdminModel();  
         $AModel->parseObject($object);
@@ -17,8 +18,9 @@ class AdminController extends BASECONTROLLER{
         if(sizeof($v)>0){
             echo json_encode($v);
             die();
-        }
-        $this->adminModel = $AModel;
+        } 
+        $this->adminModel = $AModel; 
+
     }
 
     public function  checkExistUsername(){
@@ -42,7 +44,7 @@ class AdminController extends BASECONTROLLER{
         }
 
     }
-    public function CreateUser(){  
+    public function CreateUserAdmin(){  
         try{
             $this->checkExistUsername();
             parent::__construct();
@@ -62,27 +64,49 @@ class AdminController extends BASECONTROLLER{
         }
         
     }
-    public function UpdateUser(){ 
+
+    function getOldpassword(){
+        parent::__construct();
+        $model=$this->adminModel;
+        $sql="select password from adminschool";
+        $stmt=$this->prepare($sql);
+        $stmt->execute();
+        $result=$stmt->get_result();
+        foreach($result as $k=>$v){
+            $pass=$v['password'];
+        }
+        $this->closeall($stmt);
+        return $pass;
+    }
+
+    function getPasswordUpdateUser(){
+        $model=$this->adminModel;
+        if(strlen($model->password)>55){  
+            $model->password=$this->getOldpassword();  
+        }else{
+            $model->password=$this->getPasswordHash($model->password); 
+        } 
+    }
+    public function UpdateUserAdmin(){ 
         try{ 
             $this->CheckId(); 
             $createD=$this->getOldDate(); 
             $model=$this->adminModel;
-            if(strlen($model->password)>55){
-            $model->password=$this->getPasswordHash($model->password);
-            }
+            $this->getPasswordUpdateUser();
+
             $sql="update adminschool set username=?, password=?, status=?, created_date=?, updated_date=? where id=?";
             $stmt=$this->prepare($sql);
             $stmt->bind_param('ssssss', $model->username,$model->password,$model->status,$createD,$model->updatedate,$model->id);
             $data=$stmt->execute();
             if($data){
-                PrintJSON([],"Update User Admin Id: $model->id Success Full",0);
+                PrintJSON([],"Update User Admin Id: $model->id Success Full",1);
             }
         }catch(Exception $e){
             print_r($e->getMessage());
         }
     }
 
-    public function ViewUser(){
+    public function ViewUserAdmin(){
         try{ 
             $this->CheckId();
             $model=$this->adminModel;
@@ -98,7 +122,7 @@ class AdminController extends BASECONTROLLER{
                             $arr= $v;
                         }
                         $data=json_encode($arr);
-                        $json = "{\"Data\":$data, \"Message\": \"View User ID: $model->id Success Full\", \"Status\":\"1\"}";
+                        $json = "{\"Data\":$data, \"Message\": \"View User Admin ID: $model->id Success Full\", \"Status\":\"1\"}";
                         echo $json; 
                         $this->closeall($stmt);
                         die;
@@ -110,7 +134,7 @@ class AdminController extends BASECONTROLLER{
         }
     }
 
-    public function ViewAllUser(){
+    public function ViewAllUserAdmin(){
         try{  
             $model=$this->adminModel;
             parent::__construct();
@@ -124,7 +148,7 @@ class AdminController extends BASECONTROLLER{
                             $arr[]= $v;
                         }
                         $data=json_encode($arr);
-                        $json = "{\"Data\":$data, \"Message\": \"View All User Success Full\", \"Status\":\"1\"}";
+                        $json = "{\"Data\":$data, \"Message\": \"View All User Admin Success Full\", \"Status\":\"1\"}";
                         echo $json; 
                         $this->closeall($stmt);
                         die;
@@ -136,7 +160,7 @@ class AdminController extends BASECONTROLLER{
         }
     }
 
-    public function Delete(){
+    public function DeleteUserAdmin(){
         try{
             $this->CheckId();
             $model=$this->adminModel;

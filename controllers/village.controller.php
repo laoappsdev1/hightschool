@@ -6,6 +6,7 @@ class VillageController extends BASECONTROLLER{
     function __construct($obj)
     {
         parent::__construct();
+        $this->setDB(adminschool_db);
         $villageM=new VillageModel();
         $villageM->parseObject($obj);
         $v =[];
@@ -22,9 +23,9 @@ class VillageController extends BASECONTROLLER{
         try{ 
             $this->checkExitProvinceId_And_DistrictId();
             $this->checkExitVillagename();
-            $Vmodel=$this->vlModel;
-            // print_r($Dtmodel);exit;
-            parent::__construct();
+            $Vmodel=$this->vlModel; 
+           
+            $this->setDB(adminschool_db);
             $sql="insert into village(name, district_id,created_date,updated_date) values(?,?,?,?)";
             $stmt = $this->prepare($sql);
             $stmt->bind_param('ssss',$Vmodel->name,$Vmodel->districtid,$Vmodel->createdate,$Vmodel->updatedate);
@@ -43,9 +44,9 @@ class VillageController extends BASECONTROLLER{
         try{
             $this->checkExitProvinceId_And_DistrictId();
             $this->checkExitVillagename();
-            $this->checkExitVillageId();
-
+            $this->checkExitVillageId(); 
             parent::__construct();
+            $this->setDB(adminschool_db);
             $SModel=$this->vlModel;
             // print_r($SModel);exit;
             $createD=$this->getDateCreate(); 
@@ -69,6 +70,7 @@ class VillageController extends BASECONTROLLER{
             $this->checkExitVillageId();
             $model=$this->vlModel;
             parent::__construct();
+            $this->setDB(adminschool_db);
             $stmt = $this->prepare("select * from village where id=?");  
             $stmt->bind_param('s', $model->id);
             $stmt->execute();  
@@ -95,6 +97,7 @@ class VillageController extends BASECONTROLLER{
         try{     
             $model=$this->vlModel;
             parent::__construct();
+            $this->setDB(adminschool_db);
             $stmt = $this->prepare("select * from village");   
             $stmt->execute();  
             $rs = $stmt->get_result(); 
@@ -122,6 +125,7 @@ class VillageController extends BASECONTROLLER{
             $this->checkExitVillageId();
             $SModel=$this->vlModel;
             parent::__construct();
+            $this->setDB(adminschool_db);
             $sql="delete from village where id=?";
             $stmt=$this->prepare($sql);
             $stmt->bind_param('s', $SModel->id);
@@ -136,6 +140,7 @@ class VillageController extends BASECONTROLLER{
 
     function checkExitVillageId(){
         parent::__construct();
+        $this->setDB(adminschool_db);
         $sql="select id from village where id='".$this->vlModel->id."'";
         $stmt=$this->prepare($sql);
         $stmt->execute();
@@ -148,6 +153,7 @@ class VillageController extends BASECONTROLLER{
     }
     function checkExitProvinceId_And_DistrictId(){
         parent::__construct();
+        $this->setDB(adminschool_db);
         $sql="select * from district where id='".$this->vlModel->districtid."' and province_id='".$this->vlModel->provinceid."'";
         $stmt=$this->prepare($sql);
         $stmt->execute();
@@ -161,15 +167,16 @@ class VillageController extends BASECONTROLLER{
     }
 
     function checkExitVillagename(){
+        $model=$this->vlModel;
         parent::__construct(); 
-        // print_r($this->vlModel);exit;
-        $sql="select name from village where name='".$this->vlModel->name."' and district_id='".$this->vlModel->districtid."'";
+        $this->setDB(adminschool_db); 
+        $sql="select name from village where name='".$model->name."' and district_id='".$model->districtid."'";
         $stmt=$this->prepare($sql);
         $stmt->execute();
         $rs = $stmt->get_result(); // get the mysqli result
             if(!empty($rs->num_rows)){
-                $name=$this->vlModel->name;
-                $Did=$this->vlModel->districtid;
+                $name=$model->name;
+                $Did=$model->districtid;
                 PrintJSON([],"This Village Name: $name already to create before In District ID: $Did ", 0);
                 die();
         }   
@@ -178,6 +185,7 @@ class VillageController extends BASECONTROLLER{
 
     public function getDateCreate(){
         parent::__construct(); 
+        $this->setDB(adminschool_db);
         $stmt = $this->prepare("select created_date from village where id=?");  
         $stmt->bind_param('s', $this->vlModel->id);
         $stmt->execute();   

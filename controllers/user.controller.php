@@ -56,7 +56,7 @@ class UserController extends BASECONTROLLER{
             $rs=$stmt->execute();
             if($rs){
                 // $id = isset($uModel->id)?$uModel->id: '';
-                echo json_encode(array("message"=>"Create User ID: $model->id Success","status"=>"1"));
+                echo json_encode(array("message"=>"Create User ID: $stmt->insert_id Success","status"=>"1"));
             }
             
             // $a = array('user'=>$uModel);
@@ -99,6 +99,7 @@ class UserController extends BASECONTROLLER{
             $createD=$this->getOldDate(); 
             $model=$this->userModel;
             $this->getPasswordUpdateUser();
+
             $sql="update user set username=?, password=?, token=?, usertype=?, created_date=?, updated_date=? where id=?";
             $stmt=$this->prepare($sql);
             $stmt->bind_param('sssssss', $model->username,$model->password,$model->token,$model->usertype,$createD,$model->updatedate,$model->id);
@@ -197,13 +198,14 @@ class UserController extends BASECONTROLLER{
     }
 
     public function CheckId(){  
-        $uModel =$this->userModel; 
+        $model =$this->userModel; 
+        parent::__construct();
         $stmt = $this->prepare("select * from user where id=?");  
-        $stmt->bind_param('s', $uModel->id);
+        $stmt->bind_param('s', $model->id);
         $stmt->execute();   
         $rs = $stmt->get_result(); // get the mysqli result
         if(empty($rs->num_rows)){
-            PrintJSON("", "user ID: $uModel->id is not available!", 0);
+            PrintJSON("", "user ID: $model->id is not available!", 0);
             die(); 
         }
         $this->closeall($stmt); 

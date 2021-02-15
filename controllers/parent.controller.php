@@ -281,6 +281,7 @@ class ParentController extends BASECONTROLLER{
     }
     public function CheckVillageId(){ 
         parent::__construct(); 
+        $this->setDB(adminschool_db);
         $prModel =$this->PModel; 
         $stmt = $this->prepare("select * from village where id=?");  
         $stmt->bind_param('s', $prModel->villageid);
@@ -333,7 +334,6 @@ class ParentController extends BASECONTROLLER{
         }else{
             echo "no data";
         }
-        
     }
 
     function getOldFile(){

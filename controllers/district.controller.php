@@ -6,6 +6,7 @@ class DistrictController extends BASECONTROLLER{
     function __construct($obj)
     {
         parent::__construct();
+        $this->setDB(adminschool_db);
         $Dmodel=new DistrictModel();
         $Dmodel->parseObject($obj);
         $v =[];
@@ -24,6 +25,7 @@ class DistrictController extends BASECONTROLLER{
             $this->checkExitdistrictname();
             $model=$this->DistrictM; 
             parent::__construct();
+            $this->setDB(adminschool_db);
             $sql="insert into district(name, province_id,created_date,updated_date) values(?,?,?,?)";
             $stmt = $this->prepare($sql);
             $stmt->bind_param('ssss',$model->name,$model->provinceid,$model->createdate,$model->updatedate);
@@ -44,6 +46,7 @@ class DistrictController extends BASECONTROLLER{
             $this->checkExitDistrictId();
 
             parent::__construct();
+            $this->setDB(adminschool_db);
             $model=$this->DistrictM; 
             $createD=$this->getDateCreate(); 
 
@@ -65,6 +68,7 @@ class DistrictController extends BASECONTROLLER{
             $this->checkExitDistrictId();
             $model=$this->DistrictM;
             parent::__construct();
+            $this->setDB(adminschool_db);
             $stmt = $this->prepare("
                 select 
                 p.id province_id, 
@@ -101,6 +105,7 @@ class DistrictController extends BASECONTROLLER{
         try{     
             $model=$this->DistrictM;
             parent::__construct();
+            $this->setDB(adminschool_db);
             $keywords='';
             $search=trim($model->keyword);
                 if(!empty(strlen($search))){  //trim() ແມ່ນ function ຕັດ space ທັງຫນ້າ ທັງຫຼັງ
@@ -147,6 +152,7 @@ class DistrictController extends BASECONTROLLER{
             $this->checkExitDistrictId();
             $model=$this->DistrictM;
             parent::__construct();
+            $this->setDB(adminschool_db);
             $sql="delete from district where id=?";
             $stmt=$this->prepare($sql);
             $stmt->bind_param('s', $model->id);
@@ -161,6 +167,7 @@ class DistrictController extends BASECONTROLLER{
 
     function checkExitDistrictId(){
         parent::__construct();
+        $this->setDB(adminschool_db);
         $sql="select id from district where id='".$this->DistrictM->id."'";
         $stmt=$this->prepare($sql);
         $stmt->execute();
@@ -173,6 +180,7 @@ class DistrictController extends BASECONTROLLER{
     }
     function checkExitProvinceId(){
         parent::__construct();
+        $this->setDB(adminschool_db);
         $sql="select * from province where id='".$this->DistrictM->provinceid."'";
         $stmt=$this->prepare($sql);
         $stmt->execute();
@@ -186,6 +194,7 @@ class DistrictController extends BASECONTROLLER{
 
     function checkExitdistrictname(){
         parent::__construct(); 
+        $this->setDB(adminschool_db);
         $model=$this->DistrictM;
         $sql="select name from district where name='".$model->name."' and province_id='".$model->provinceid."'";
         $stmt=$this->prepare($sql);
@@ -202,6 +211,7 @@ class DistrictController extends BASECONTROLLER{
 
     public function getDateCreate(){
         parent::__construct(); 
+        $this->setDB(adminschool_db);
         $stmt = $this->prepare("select created_date from district where id=?");  
         $stmt->bind_param('s', $this->DistrictM->id);
         $stmt->execute();   

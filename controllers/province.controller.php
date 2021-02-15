@@ -6,6 +6,7 @@ class ProvinceController extends BASECONTROLLER{
     function __construct($obj)
     {
         parent::__construct();
+        $this->setDB(adminschool_db);
         $Pmodel=new ProvinceModel();
         $Pmodel->parseObject($obj);
         $v =[];
@@ -21,13 +22,13 @@ class ProvinceController extends BASECONTROLLER{
     public function createProvince(){
         try{
             $this->checkExitLevelname();
-            $pmodel=$this->pvModel;
-            parent::__construct();
+            $model=$this->pvModel; 
+            $this->setDB(adminschool_db);
             $sql="insert into province(name,created_date,updated_date) values(?,?,?)";
             $stmt = $this->prepare($sql);
-            $stmt->bind_param('sss',$pmodel->name,$pmodel->createdate,$pmodel->updatedate);
+            $stmt->bind_param('sss',$model->name,$model->createdate,$model->updatedate);
             if( $stmt->execute()){
-                PrintJSON([],"Create Province Name: $pmodel->name Success Fully!",1);
+                PrintJSON([],"Create Province Name: $model->name Success Fully!",1);
                 $this->closeall($stmt);
             }
         }catch(Exception $e){
@@ -41,9 +42,8 @@ class ProvinceController extends BASECONTROLLER{
             $this->checkExitLevelname();
             $this->checkExitLevelId();
             $pmodel=$this->pvModel;
-            $createD=$this->getDateCreate();
-
-            parent::__construct();
+            $createD=$this->getDateCreate(); 
+            $this->setDB(adminschool_db);
             $sql="update province set name=?, created_date=?, updated_date=? where id=?";
             $stmt = $this->prepare($sql);
             $stmt->bind_param('ssss',$pmodel->name,$createD,$pmodel->updatedate, $pmodel->id);
@@ -61,7 +61,7 @@ class ProvinceController extends BASECONTROLLER{
         $this->checkExitLevelId();
         $model=$this->pvModel;
         try{  
-            parent::__construct();
+            $this->setDB(adminschool_db);
             $stmt = $this->prepare("select * from province where id=?");  
             $stmt->bind_param('s', $model->id);
             $stmt->execute();  
@@ -88,7 +88,7 @@ class ProvinceController extends BASECONTROLLER{
     public function viewAllProvince(){ 
         $model=$this->pvModel;
         try{  
-            parent::__construct();
+            $this->setDB(adminschool_db);
             $stmt = $this->prepare("select * from province");   
             $stmt->execute();  
             $rs = $stmt->get_result(); 
@@ -115,7 +115,7 @@ class ProvinceController extends BASECONTROLLER{
         try{
             $this->checkExitLevelId();
             $pmodel=$this->pvModel;
-            parent::__construct();
+            $this->setDB(adminschool_db);
             $sql="delete from province where id=?";
             $stmt=$this->prepare($sql);
             $stmt->bind_param('s', $pmodel->id);
@@ -129,7 +129,7 @@ class ProvinceController extends BASECONTROLLER{
     }
 
     function checkExitLevelId(){
-        parent::__construct();
+        $this->setDB(adminschool_db);
         $sql="select id from province where id='".$this->pvModel->id."'";
         $stmt=$this->prepare($sql);
         $stmt->execute();
@@ -142,7 +142,7 @@ class ProvinceController extends BASECONTROLLER{
     }
 
     function checkExitLevelname(){
-        parent::__construct();
+        $this->setDB(adminschool_db);
         $sql="select name from province where name='".$this->pvModel->name."'";
         $stmt=$this->prepare($sql);
         $stmt->execute();
@@ -155,7 +155,7 @@ class ProvinceController extends BASECONTROLLER{
     }
 
     public function getDateCreate(){
-        parent::__construct(); 
+        $this->setDB(adminschool_db);
         $stmt = $this->prepare("select created_date from province where id=?");  
         $stmt->bind_param('s', $this->pvModel->id);
         $stmt->execute();   

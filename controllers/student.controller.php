@@ -201,6 +201,7 @@ class StudentController extends BASECONTROLLER{
     }
     public function CheckVillageId(){ 
         parent::__construct(); 
+        $this->setDB(adminschool_db);
         $teachModel =$this->studentModel; 
         $stmt = $this->prepare("select * from village where id=?");  
         $stmt->bind_param('s', $teachModel->villageid);

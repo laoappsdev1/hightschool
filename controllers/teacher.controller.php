@@ -131,6 +131,7 @@ class TeacherController extends BASECONTROLLER{
             parent::__construct();
             $model=$this->userModel; 
             $this->getPasswordUpdateUser(); 
+
             $sql="update user set username=?, password=?, token=?, usertype=?, created_date=?, updated_date=? where id=?";
             $stmt=$this->prepare($sql);
             $stmt->bind_param('sssssss', $model->username,$model->password,$model->token,$model->usertype,$createD,$model->updatedate,$this->TModel->userid);
@@ -297,6 +298,7 @@ class TeacherController extends BASECONTROLLER{
     }
     public function CheckVillageId(){ 
         parent::__construct(); 
+        $this->setDB(adminschool_db);
         $teachModel =$this->TModel; 
         $stmt = $this->prepare("select * from village where id=?");  
         $stmt->bind_param('s', $teachModel->villageid);
@@ -365,8 +367,7 @@ class TeacherController extends BASECONTROLLER{
                 }
             } 
         } 
-        return $imagename;
-        
+        return $imagename; 
     }
 
 }
