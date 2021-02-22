@@ -20,16 +20,16 @@ class ScoreController extends BASECONTROLLER{
 
     public function createScore(){
         try{
-            $this->checkExitFollowStudentId();
+            $this->checkExitSubjectId();
             $this->checkExitSemesterDetailID();
-            $this->checkExitScoreStudent();
+            // $this->checkExitScoreStudent();
             $model=$this->scoremodel;
             parent::__construct();
-            $sql="insert into score(score,follow_student_id,semester_detail_id,description,created_date,updated_date) values(?,?,?,?,?,?)";
+            $sql="insert into score(score,subject_id,semester_detail_id,description,created_date,updated_date) values(?,?,?,?,?,?)";
             $stmt = $this->prepare($sql);
             $stmt->bind_param('ssssss',
                 $model->score,
-                $model->followstudentid,
+                $model->subjectid,
                 $model->semesterdetailid,
                 $model->description,
                 $model->createdate,
@@ -46,17 +46,17 @@ class ScoreController extends BASECONTROLLER{
     public function updateScore(){
         try{
             $this->checkExitScoreId();
-            $this->checkExitFollowStudentId();
+            $this->checkExitSubjectId();
             $this->checkExitSemesterDetailID();
             // $this->checkExitScoreStudent();
             $model=$this->scoremodel;
             $createD=$this->getDateCreate();
             parent::__construct();
-            $sql="update score set score=?,follow_student_id=?,semester_detail_id=?,description=?, created_date=?, updated_date=? where id=?";
+            $sql="update score set score=?,subject_id=?,semester_detail_id=?,description=?, created_date=?, updated_date=? where id=?";
             $stmt = $this->prepare($sql);
             $stmt->bind_param('sssssss',
                 $model->score,
-                $model->followstudentid,
+                $model->subjectid,
                 $model->semesterdetailid,
                 $model->description,
                 $createD,
@@ -101,8 +101,8 @@ class ScoreController extends BASECONTROLLER{
     }
 
     public function viewAllScore(){ 
-        $model=$this->scoremodel;
         try{  
+            $model=$this->scoremodel; 
             parent::__construct();
             $stmt = $this->prepare("select * from score");   
             $stmt->execute();  
@@ -156,15 +156,15 @@ class ScoreController extends BASECONTROLLER{
             die();
         }
     }
-    function checkExitFollowStudentId(){
+    function checkExitSubjectId(){
         parent::__construct();
         $model=$this->scoremodel;
-        $sql="select id from follow_student where id='".$model->followstudentid."'";
+        $sql="select id from subject where id='".$model->subjectid."'";
         $stmt=$this->prepare($sql);
         $stmt->execute();
         $rs = $stmt->get_result(); // get the mysqli result
         if(empty($rs->num_rows)){ 
-            PrintJSON([],"Follow Student ID: $model->followstudentid Not Valiable!", 0);
+            PrintJSON([],"Subject ID: $model->subjectid Not Valiable!", 0);
             die();
         }
     }
@@ -181,18 +181,18 @@ class ScoreController extends BASECONTROLLER{
         }
     }
 
-    function checkExitScoreStudent(){
-        parent::__construct();
-        $model=$this->scoremodel; 
-            $sql="select id from score where semester_detail_id='".$model->semesterdetailid."' and follow_student_id='".$model->followstudentid."'";
-            $stmt=$this->prepare($sql);
-            $stmt->execute();
-            $rs = $stmt->get_result(); // get the mysqli result
-            if(!empty($rs->num_rows)){ 
-                PrintJSON([],"Your score : $model->score already to create before!", 0);
-                die(); 
-        }
-    }
+    // function checkExitScoreStudent(){
+    //     parent::__construct();
+    //     $model=$this->scoremodel; 
+    //         $sql="select id from score where semester_detail_id='".$model->semesterdetailid."' and follow_student_id='".$model->followstudentid."'";
+    //         $stmt=$this->prepare($sql);
+    //         $stmt->execute();
+    //         $rs = $stmt->get_result(); // get the mysqli result
+    //         if(!empty($rs->num_rows)){ 
+    //             PrintJSON([],"Your score : $model->score already to create before!", 0);
+    //             die(); 
+    //     }
+    // }
 
     public function getDateCreate(){
         parent::__construct(); 
