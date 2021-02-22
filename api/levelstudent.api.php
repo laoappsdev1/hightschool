@@ -22,6 +22,14 @@ try{
         CheckAuthorize(['teacher']);
         $lvsc=new LevelStudentController($json); 
         $lvsc->viewLevelStudent();  
+    }else if($m==="viewbyteacher"){ 
+        CheckAuthorize(['teacher']);
+        $lvsc=new LevelStudentController($json); 
+        $lvsc->viewbyteacher();  
+    }else if($m==="viewbylevel"){ 
+        CheckAuthorize(['teacher']);
+        $lvsc=new LevelStudentController($json); 
+        $lvsc->viewbylevel();  
     }else if($m==="viewall"){ 
         CheckAuthorize(['teacher']);
         $lvsc=new LevelStudentController($json); 

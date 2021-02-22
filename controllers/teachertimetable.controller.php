@@ -110,6 +110,36 @@ class TeacherTimetableController extends BASECONTROLLER{
         }
     }
 
+    public function viewforteacher(){ 
+        try{  
+            $model=$this->TTmodel;
+            $quadition='';
+            if(!empty($model->teacherid)){
+                $quadition.="and teacher_id='$model->teacherid'";
+            }
+            parent::__construct(); 
+            $now=date('Y-m-d');
+            $stmt = $this->prepare("select * from teacher_timetable where date > '$now' $quadition");   
+            $stmt->execute();  
+            $rs = $stmt->get_result(); 
+            $arr = array();
+            if(!empty($rs->num_rows)){
+                    foreach($rs as $k=>$v)
+                    {
+                        $arr[]= $v;
+                    }
+                    $data=json_encode($arr);
+                    $json = "{\"Data\":$data, \"Message\": \"View All Teacher Timetable Success Full\", \"Status\":\"1\"}";
+                    echo $json; 
+                    $this->closeall($stmt);
+                    die;
+                }else{
+                    PrintJSON([],"teacher ID:$model->teacherid, don not have timetable!",'0');
+                }
+        }catch(Exception $e){
+            print_r($e->getMessage());
+        }
+    }
     public function viewAllTeacherTimetable(){ 
         $model=$this->TTmodel;
         try{  

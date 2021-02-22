@@ -105,6 +105,45 @@ class FollowTeacherController extends BASECONTROLLER{
             print_r($e->getMessage());
         }
     }
+    public function viewByTeacher(){
+        try{   
+            $model=$this->followteacherModel;
+            parent::__construct();
+            $condition='';
+
+            if(!empty($model->teacherid)){
+                $condition.="and tt.teacher_id='$model->teacherid'";
+            }
+            if(!empty($model->subjectid)){
+                $condition.="and tt.subject_id='$model->subjectid'";
+            }
+            if(!empty($model->status)){
+                $condition.="and tt.status='$model->status'";
+            }
+            
+            $stmt = $this->prepare("select * from 
+            follow_teacher as ft join teacher_timetable as tt 
+            on ft.teacher_timetable_id=tt.id where ft.id>'0' $condition");   
+            $stmt->execute();  
+            $rs = $stmt->get_result(); 
+            $arr = array();
+            if(!empty($rs->num_rows)){
+                    foreach($rs as $k=>$v)
+                    {
+                        $arr[]= $v;
+                    }
+                    $data=json_encode($arr);
+                    $json = "{\"Data\":$data, \"Message\": \"View All Follow Teacher Success Full\", \"Status\":\"1\"}";
+                    echo $json; 
+                    $this->closeall($stmt);
+                    die;
+                }else{
+                    PrintJSON([],"Follow Teacher Can't valiable", 0);
+                }
+        }catch(Exception $e){
+            print_r($e->getMessage());
+        }
+    }
     public function viewAllFollowTeacher(){
         try{   
             $model=$this->followteacherModel;

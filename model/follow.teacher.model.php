@@ -9,6 +9,9 @@ class FollowTeachModel extends BASEMODEL{
     public int $replacement;                 // Null
     public string $refer;                    // Null
     public string $replacementdescription;   // Null
+    public int $teacherid;                   // use for searcher follow teacher 
+    public int $subjectid;                   // use for searcher follow teacher 
+    public string $status;                   // use for searcher follow teacher 
 
     public function __construct()
     { 

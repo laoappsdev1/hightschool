@@ -21,12 +21,12 @@ class SemesterDetailController extends BASECONTROLLER{
     public function createSemesterDetail(){
         try{ 
             $this->checkExitSemesterId();
-            $this->checkExitSemesterDetailMonth();
+            $this->checkExitLevelstudentId();
             $SMTD=$this->smtdModel;
             parent::__construct();
-            $sql="insert into semester_detail(month, semester_id,created_date,updated_date) values(?,?,?,?)";
+            $sql="insert into semester_detail(month, semester_id,level_student_id,created_date,updated_date) values(?,?,?,?,?)";
             $stmt = $this->prepare($sql);
-            $stmt->bind_param('ssss',$SMTD->month,$SMTD->semesterid,$SMTD->createdate,$SMTD->updatedate);
+            $stmt->bind_param('sssss',$SMTD->month,$SMTD->semesterid,$SMTD->levelstudentid,$SMTD->createdate,$SMTD->updatedate);
             if($stmt->execute()){
                 $month=$SMTD->month;
                 PrintJSON([],"Create Semester Detail Month: $month Success Fully!",1);
@@ -41,19 +41,24 @@ class SemesterDetailController extends BASECONTROLLER{
     public function updateSemesterDetail(){
         try{
             $this->checkExitSemesterId();
-            $this->checkExitSemesterDetailMonth();
+            $this->checkExitLevelstudentId();
             $this->checkExitSemesterDetailId();
+            $model=$this->smtdModel;
 
             parent::__construct();
-            // $SMTD=$this->smtdModel;
-            // print_r($SModel);exit;1
             $createD=$this->getDateCreate(); 
 
-            $sql="update semester_detail set month=?, semester_id=?, created_date=?, updated_date=? where id=?";
+            $sql="update semester_detail set month=?, semester_id=?, level_student_id=?, created_date=?, updated_date=? where id=?";
             $stmt = $this->prepare($sql);
-            $stmt->bind_param("sssss", $this->smtdModel->month,$this->smtdModel->semesterid,$createD,$this->smtdModel->updatedate,$this->smtdModel->id);
+            $stmt->bind_param("ssssss", 
+            $model->month,
+            $model->semesterid,
+            $model->levelstudentid,
+            $createD,
+            $model->updatedate,
+            $model->id);
                 if( $stmt->execute()){
-                    $month=$this->smtdModel->month;
+                    $month=$model->month;
                     PrintJSON([],"update Semester Detail Month: $month Success Fully!",1);
                     $this->closeall($stmt);
                 }
@@ -134,6 +139,20 @@ class SemesterDetailController extends BASECONTROLLER{
         }
     }
 
+    function checkExitLevelstudentId(){
+        parent::__construct();
+        $model=$this->smtdModel;
+        $sql="select id from level_student where id='".$model->levelstudentid."'";
+        $stmt=$this->prepare($sql);
+        $stmt->execute();
+        $rs = $stmt->get_result(); // get the mysqli result
+        if(empty($rs->num_rows)){
+            $id=$model->levelstudentid;
+            PrintJSON([],"Your Level Student ID: $id It is not Valiable!", 0);
+            die();
+        }
+    }
+
     function checkExitSemesterDetailId(){
         parent::__construct();
         $sql="select id from semester_detail where id='".$this->smtdModel->id."'";
@@ -159,20 +178,6 @@ class SemesterDetailController extends BASECONTROLLER{
         }
     }
 
-    function checkExitSemesterDetailMonth(){
-        parent::__construct(); 
-        $sql="select month from semester_detail where month='".$this->smtdModel->month."' and semester_id='".$this->smtdModel->semesterid."'";
-        $stmt=$this->prepare($sql);
-        $stmt->execute();
-        $rs = $stmt->get_result(); // get the mysqli result
-            if(!empty($rs->num_rows)){
-                $month=$this->smtdModel->month;
-                $semester_id=$this->smtdModel->semesterid;
-                PrintJSON([],"your Semester Detail Month: $month already to create before In Semester ID: $semester_id ", 0);
-                die();
-        }   
-        $this->closeall($stmt);
-    }
 
     public function getDateCreate(){
         parent::__construct(); 

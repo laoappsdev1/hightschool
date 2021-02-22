@@ -132,6 +132,72 @@ class LevelStudentController extends BASECONTROLLER{
         }
     }
 
+    public function viewbyteacher(){ 
+        try{  
+            $model=$this->levelstudent;
+            parent::__construct();
+            $stmt = $this->prepare("select * from level_student where status='studying' and level_id=? and classroom_id=?");   
+            $stmt->bind_param('ss',
+            $model->levelid,
+            $model->classroomid);
+            $stmt->execute();  
+            $rs = $stmt->get_result(); 
+            $arr = array();
+            if(!empty($rs->num_rows)){
+                    foreach($rs as $k=>$v)
+                    {
+                        $arr[]= $v;
+                    }
+                    $data=json_encode($arr);
+                    $json = "{\"Data\":$data, \"Message\": \"View Level Student Success Full\", \"Status\":\"1\"}";
+                    echo $json; 
+                    $this->closeall($stmt);
+                    die;
+                }else{
+                    PrintJSON([],"Level_id or Classroom_id is not valiable", 0);
+                }
+        }catch(Exception $e){
+            print_r($e->getMessage());
+        }
+    }
+    public function viewbylevel(){ 
+        try{  
+            $model=$this->levelstudent;
+            $quadition='';
+            if(!empty($model->status)){
+                $quadition.="and status ='$model->status'";  
+            }
+            if(!empty($model->levelid)){
+                $quadition.="and level_id ='$model->levelid'";
+            } 
+            if(!empty($model->classroomid)){
+                $quadition.="and classroom_id ='$model->classroomid'";
+            }
+            
+            // echo $quadition;exit;
+            parent::__construct();
+            $stmt = $this->prepare("select * from level_student where id>0 $quadition");   
+            $stmt->execute();  
+            $rs = $stmt->get_result(); 
+            $arr = array();
+            if(!empty($rs->num_rows)){
+                    foreach($rs as $k=>$v)
+                    {
+                        $arr[]= $v;
+                    }
+                    $data=json_encode($arr);
+                    $json = "{\"Data\":$data, \"Message\": \"View Level Student Success Full\", \"Status\":\"1\"}";
+                    echo $json; 
+                    $this->closeall($stmt);
+                    die;
+                }else{
+                    PrintJSON([],"Level_id or Classroom_id is not valiable", 0);
+                }
+        }catch(Exception $e){
+            print_r($e->getMessage());
+        }
+    }
+
     public function deleteLevelStudent(){
         try{
             $this->checkExitLevelStudentId();

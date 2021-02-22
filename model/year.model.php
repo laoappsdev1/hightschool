@@ -3,12 +3,12 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 include_once('base.model.php');
-class ScoreModel extends BASEMODEL{
-    public int $id;  
-    public int $score;  
-    public int $subjectid;  
-    public int $semesterdetailid;  
-    public string $description;  
+class YearsModel extends BASEMODEL{
+    public int $id;
+    public int $year;
+    public string $schoolyear; 
+    public string $series; 
+
 
     public function __construct()
     { 
@@ -28,23 +28,39 @@ class ScoreModel extends BASEMODEL{
 
     public function validate($propertys):array{
         switch($propertys){
-            case "score":
-            return $this->validateScore(); 
+            case "year":
+            return $this->year();
+            case "series":
+            return $this->series();
+            case "schoolyear":
+            return $this->schoolyear();
         }
         return [];
     }
- 
 
-    function validateScore():array{
+    function schoolyear():array{
         $result=array();
-        if ($this->score === "") { 
-            $result[]= '{"message":"score is empty","status":0}';
+        if ($this->schoolyear === "") { 
+            $result[]= '{"message":"schoolyear is empty","status":0}';
         }
-        if($this->score==''|| !is_numeric($this->score)){
-           $result[]= '{"message":"Your Score is not a number or it is empty","status":0}';
-        } 
         return $result;
-    } 
+    }
+
+    function year():array{
+        $result=array();
+        if ($this->year === "") { 
+            $result[]= '{"message":"year is empty","status":0}';
+        }
+        return $result;
+    }
+    
+    function series():array{
+        $result=array();
+        if ($this->series === "") { 
+            $result[]= '{"message":"series is empty","status":0}';
+        }
+        return $result;
+    }
     
 
     function validateId():array{
@@ -58,4 +74,3 @@ class ScoreModel extends BASEMODEL{
     }
 
 }
-?>

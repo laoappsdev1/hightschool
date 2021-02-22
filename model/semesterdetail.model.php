@@ -7,6 +7,7 @@ include_once('base.model.php');
 class SemesterDetailModel extends BASEMODEL{
     public int $id;  
     public int $semesterid;  
+    public int $levelstudentid;  
     public string $month;  
 
     public function __construct()

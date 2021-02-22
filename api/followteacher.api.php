@@ -17,6 +17,9 @@ try{
     }else if($m==="view"){ 
         $FLC=new FollowTeacherController($json); 
         $FLC->viewFollowTeacher(); 
+    }else if($m==="viewbyteacher"){ 
+        $FLC=new FollowTeacherController($json); 
+        $FLC->viewByTeacher(); 
     }else if($m==="viewall"){ 
         $FLC=new FollowTeacherController($json); 
         $FLC->viewAllFollowTeacher(); 

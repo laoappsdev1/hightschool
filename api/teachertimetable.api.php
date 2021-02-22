@@ -17,6 +17,9 @@ try{
     }else if($m==="view"){ 
         $ttC=new TeacherTimetableController($json); 
         $ttC->viewTeacherTimetable(); 
+    }else if($m==="viewforteacher"){ 
+        $ttC=new TeacherTimetableController($json); 
+        $ttC->viewforteacher(); 
     }else if($m==="viewall"){ 
         $ttC=new TeacherTimetableController($json); 
         $ttC->viewAllTeacherTimetable(); 
